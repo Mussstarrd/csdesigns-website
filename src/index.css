@@ -1,0 +1,89 @@
+@import "tailwindcss";
+
+@theme {
+  --color-cs-bg: #050510;
+  --color-cs-panel: #0a0a1a;
+  --color-cs-panel-2: #11122a;
+  --color-cs-line: #1f2347;
+  --color-cs-ink: #e6ecff;
+  --color-cs-muted: #6b7aa3;
+  --color-cs-cyan: #00f0ff;
+  --color-cs-magenta: #ff2d95;
+  --color-cs-violet: #8b5cf6;
+
+  --font-display: 'Orbitron', 'Arial Black', sans-serif;
+  --font-mono: 'JetBrains Mono', 'Fira Code', monospace;
+  --font-body: 'Inter', system-ui, sans-serif;
+}
+
+* { margin: 0; padding: 0; box-sizing: border-box; }
+
+html { scroll-behavior: smooth; }
+
+body {
+  background: #050510;
+  color: #e6ecff;
+  font-family: 'Inter', system-ui, sans-serif;
+  -webkit-font-smoothing: antialiased;
+  overflow-x: hidden;
+}
+
+a { color: inherit; text-decoration: none; }
+
+/* Grid background */
+.cs-grid {
+  background-image:
+    linear-gradient(to right, rgba(0, 240, 255, 0.04) 1px, transparent 1px),
+    linear-gradient(to bottom, rgba(0, 240, 255, 0.04) 1px, transparent 1px);
+  background-size: 60px 60px;
+}
+
+/* Cyan glow */
+.glow-cyan {
+  text-shadow: 0 0 12px rgba(0, 240, 255, 0.6), 0 0 32px rgba(0, 240, 255, 0.3);
+}
+
+.glow-magenta {
+  text-shadow: 0 0 12px rgba(255, 45, 149, 0.6), 0 0 32px rgba(255, 45, 149, 0.3);
+}
+
+.shadow-cyan {
+  box-shadow: 0 0 0 1px rgba(0, 240, 255, 0.2), 0 0 24px rgba(0, 240, 255, 0.15);
+}
+
+.shadow-cyan-strong {
+  box-shadow: 0 0 0 1px rgba(0, 240, 255, 0.6), 0 0 32px rgba(0, 240, 255, 0.35);
+}
+
+/* Scanline overlay */
+.scanlines::before {
+  content: "";
+  position: fixed;
+  inset: 0;
+  pointer-events: none;
+  z-index: 9999;
+  background: repeating-linear-gradient(
+    to bottom,
+    transparent 0,
+    transparent 2px,
+    rgba(0, 240, 255, 0.015) 3px,
+    transparent 4px
+  );
+}
+
+::-webkit-scrollbar { width: 8px; }
+::-webkit-scrollbar-track { background: #050510; }
+::-webkit-scrollbar-thumb { background: #1f2347; border-radius: 4px; }
+::-webkit-scrollbar-thumb:hover { background: #00f0ff; }
+
+::selection { background: #00f0ff; color: #050510; }
+
+@keyframes pulse-cyan {
+  0%, 100% { box-shadow: 0 0 0 1px rgba(0, 240, 255, 0.4), 0 0 20px rgba(0, 240, 255, 0.2); }
+  50% { box-shadow: 0 0 0 1px rgba(0, 240, 255, 0.8), 0 0 40px rgba(0, 240, 255, 0.5); }
+}
+
+@keyframes slide-up {
+  from { opacity: 0; transform: translateY(20px); }
+  to { opacity: 1; transform: translateY(0); }
+}
