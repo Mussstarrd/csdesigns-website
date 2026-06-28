@@ -5,7 +5,7 @@ const showcase = [
     n: "01",
     label: "Digital Art & Illustrations",
     desc: "Explore our collection of digital art and illustrations, each crafted with meticulous attention to detail to enhance visual storytelling and captivate the audience.",
-    image: "/portfolio/Screenshot 2026-06-28 154053.png",
+    image: "/portfolio/Screenshot 2026-06-28 154115.png",
   },
   {
     n: "02",
@@ -21,14 +21,7 @@ const showcase = [
   },
 ];
 
-const tickerImages = [
-  "/portfolio/sneaker-ball.jpg",
-  "/portfolio/Screenshot (6).png",
-  "/portfolio/Screenshot (7).png",
-  "/portfolio/Screenshot (8).png",
-  "/portfolio/Screenshot (11).png",
-  "/portfolio/Screenshot (12).png",
-];
+const tickerImages = ["/portfolio/Screenshot 2026-06-28 154115.png"];
 
 export default function Home() {
   return (

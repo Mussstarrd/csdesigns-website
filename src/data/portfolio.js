@@ -95,17 +95,10 @@ export const projects = [
     image: img("Screenshot 2026-06-28 153855.png"),
   },
   {
-    id: "soul-illustration",
-    title: "Soul Illustration",
-    category: "digital",
-    blurb: "Digital illustration study",
-    image: img("Screenshot 2026-06-28 154053.png"),
-  },
-  {
-    id: "character-study",
-    title: "Character Study",
-    category: "digital",
-    blurb: "Stylized character piece",
+    id: "portrait",
+    title: "Portrait",
+    category: "photography",
+    blurb: "Studio portrait piece",
     image: img("Screenshot 2026-06-28 154115.png"),
   },
   {
