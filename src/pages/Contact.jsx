@@ -1,6 +1,6 @@
 export default function Contact() {
   return (
-    <section className="max-w-6xl mx-auto px-5 sm:px-6 py-12 sm:py-16 md:py-20">
+    <section className="max-w-6xl mx-auto px-5 sm:px-6 py-16 md:py-24">
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 md:gap-12 items-start">
         <div>
           <div className="font-mono text-xs tracking-[0.4em] text-cs-blue mb-4">// CONNECT</div>

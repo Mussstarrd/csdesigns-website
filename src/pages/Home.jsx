@@ -101,7 +101,7 @@ export default function Home() {
       </section>
 
       {/* ABOUT */}
-      <section className="max-w-6xl mx-auto px-5 sm:px-6 py-14 sm:py-20 md:py-24">
+      <section className="max-w-6xl mx-auto px-5 sm:px-6 py-20 md:py-28">
         <div className="grid grid-cols-1 md:grid-cols-2 gap-8 md:gap-12 items-start">
           <div>
             <div className="font-mono text-xs tracking-[0.4em] text-cs-blue mb-3">// 01 / ABOUT</div>
@@ -124,14 +124,14 @@ export default function Home() {
       </section>
 
       {/* PORTFOLIO SHOWCASE */}
-      <section className="max-w-6xl mx-auto px-5 sm:px-6 py-14 sm:py-20 md:py-24">
+      <section className="max-w-6xl mx-auto px-5 sm:px-6 py-20 md:py-28">
         <div className="mb-10 md:mb-16">
           <div className="font-mono text-xs tracking-[0.4em] text-cs-blue mb-3">// 02 / SHOWCASE</div>
           <h2 className="font-display text-4xl md:text-5xl font-bold tracking-wider">PORTFOLIO SHOWCASE</h2>
           <div className="w-20 h-px bg-cs-blue mt-6 shadow-blue" />
         </div>
 
-        <div className="space-y-12 md:space-y-16">
+        <div className="space-y-16 md:space-y-20">
           {showcase.map((s, i) => (
             <div key={s.n} className={`grid grid-cols-1 md:grid-cols-12 gap-8 items-center ${i % 2 ? "md:[&>div:first-child]:order-2" : ""}`}>
               <div className="md:col-span-5">
@@ -156,7 +156,7 @@ export default function Home() {
       </section>
 
       {/* GET IN TOUCH */}
-      <section className="max-w-6xl mx-auto px-5 sm:px-6 py-14 sm:py-20 md:py-24">
+      <section className="max-w-6xl mx-auto px-5 sm:px-6 py-20 md:py-28">
         <div className="grid grid-cols-1 md:grid-cols-2 gap-8 md:gap-12 items-start">
           <div>
             <div className="font-mono text-xs tracking-[0.4em] text-cs-blue mb-3">// 03 / CONNECT</div>
