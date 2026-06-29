@@ -2,7 +2,7 @@ import Logo from "./Logo.jsx";
 
 export default function Footer() {
   return (
-    <footer className="border-t border-cs-line mt-32 relative z-10">
+    <footer className="border-t border-cs-line mt-16 md:mt-32 relative z-10">
       <div className="max-w-7xl mx-auto px-6 py-12">
         <div className="flex flex-col md:flex-row items-start md:items-end justify-between gap-8">
           <div>

@@ -37,26 +37,26 @@ export default function Home() {
       {/* HERO */}
       <section className="relative cs-grid overflow-hidden">
         <div className="absolute inset-0 bg-gradient-to-b from-transparent via-transparent to-cs-bg pointer-events-none" />
-        <div className="max-w-6xl mx-auto px-6 py-28 md:py-36 text-center relative">
-          <div className="font-mono text-xs tracking-[0.4em] text-cs-blue mb-6 glow-blue">
+        <div className="max-w-6xl mx-auto px-5 sm:px-6 py-16 sm:py-24 md:py-36 text-center relative">
+          <div className="font-mono text-[10px] sm:text-xs tracking-[0.3em] sm:tracking-[0.4em] text-cs-blue mb-5 sm:mb-6 glow-blue">
             // CRE8TIVE SOUL DESIGNS
           </div>
-          <h1 className="font-display text-5xl md:text-7xl lg:text-8xl font-black tracking-tight leading-[0.95]">
+          <h1 className="font-display text-4xl sm:text-5xl md:text-7xl lg:text-8xl font-black tracking-tight leading-[0.95]">
             <span className="block text-cs-ink glow-blue">DESIGNED</span>
             <span className="block text-cs-blue glow-blue">WITH SOUL.</span>
           </h1>
-          <p className="mt-10 text-cs-muted max-w-2xl mx-auto leading-relaxed">
+          <p className="mt-8 sm:mt-10 text-sm sm:text-base text-cs-muted max-w-2xl mx-auto leading-relaxed">
             Welcome to Cre8tive Soul — digital art, illustrations, brand design, UI/UX, flyer design, and photography.
             Crafted to captivate your audience and tell compelling visual stories.
           </p>
-          <div className="mt-4 font-mono text-xs tracking-[0.3em] text-cs-blue/70">
+          <div className="mt-4 font-mono text-[10px] sm:text-xs tracking-[0.25em] sm:tracking-[0.3em] text-cs-blue/70">
             "DESIGNED WITH HEART // CREATED WITH SOUL"
           </div>
-          <div className="mt-12 flex items-center justify-center gap-4">
-            <Link to="/portfolio" className="px-8 py-3 border border-cs-blue text-cs-blue font-mono text-xs uppercase tracking-[0.25em] hover:bg-cs-blue hover:text-cs-bg transition-all shadow-blue hover:shadow-blue-strong">
+          <div className="mt-10 sm:mt-12 flex flex-col sm:flex-row items-stretch sm:items-center justify-center gap-3 sm:gap-4 max-w-xs sm:max-w-none mx-auto">
+            <Link to="/portfolio" className="px-8 py-3 border border-cs-blue text-cs-blue font-mono text-xs uppercase tracking-[0.25em] hover:bg-cs-blue hover:text-cs-bg transition-all shadow-blue hover:shadow-blue-strong text-center">
               View Portfolio
             </Link>
-            <Link to="/contact" className="px-8 py-3 border border-cs-line text-cs-muted font-mono text-xs uppercase tracking-[0.25em] hover:border-cs-blue hover:text-cs-blue transition-all">
+            <Link to="/contact" className="px-8 py-3 border border-cs-line text-cs-muted font-mono text-xs uppercase tracking-[0.25em] hover:border-cs-blue hover:text-cs-blue transition-all text-center">
               Get In Touch
             </Link>
           </div>
@@ -64,12 +64,12 @@ export default function Home() {
       </section>
 
       {/* HEADSHOT TICKER BAND */}
-      <section className="relative border-y border-cs-line bg-cs-panel/70 py-6 overflow-hidden">
-        <div className="flex gap-4 animate-[scroll_30s_linear_infinite]" style={{ width: "max-content" }}>
+      <section className="relative border-y border-cs-line bg-cs-panel/70 py-4 sm:py-6 overflow-hidden">
+        <div className="flex gap-3 sm:gap-4 animate-[scroll_30s_linear_infinite]" style={{ width: "max-content" }}>
           {Array.from({ length: 20 }).map((_, i) => (
             <div
               key={i}
-              className="w-32 h-32 rounded-full overflow-hidden flex-shrink-0"
+              className="w-20 h-20 sm:w-28 sm:h-28 md:w-32 md:h-32 rounded-full overflow-hidden flex-shrink-0"
               style={{ boxShadow: "0 0 24px rgba(125, 211, 252, 0.45), inset 0 0 0 1px rgba(125, 211, 252, 0.3)" }}
             >
               <img src="/assets/headshot.png" alt="" className="w-full h-full object-cover scale-110" />
@@ -80,8 +80,8 @@ export default function Home() {
       </section>
 
       {/* ABOUT */}
-      <section className="max-w-6xl mx-auto px-6 py-24">
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-12 items-start">
+      <section className="max-w-6xl mx-auto px-5 sm:px-6 py-14 sm:py-20 md:py-24">
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-8 md:gap-12 items-start">
           <div>
             <div className="font-mono text-xs tracking-[0.4em] text-cs-blue mb-3">// 01 / ABOUT</div>
             <h2 className="font-display text-5xl md:text-6xl font-black tracking-wider glow-blue">ABOUT</h2>
@@ -103,14 +103,14 @@ export default function Home() {
       </section>
 
       {/* PORTFOLIO SHOWCASE */}
-      <section className="max-w-6xl mx-auto px-6 py-24">
-        <div className="mb-16">
+      <section className="max-w-6xl mx-auto px-5 sm:px-6 py-14 sm:py-20 md:py-24">
+        <div className="mb-10 md:mb-16">
           <div className="font-mono text-xs tracking-[0.4em] text-cs-blue mb-3">// 02 / SHOWCASE</div>
           <h2 className="font-display text-4xl md:text-5xl font-bold tracking-wider">PORTFOLIO SHOWCASE</h2>
           <div className="w-20 h-px bg-cs-blue mt-6 shadow-blue" />
         </div>
 
-        <div className="space-y-16">
+        <div className="space-y-12 md:space-y-16">
           {showcase.map((s, i) => (
             <div key={s.n} className={`grid grid-cols-1 md:grid-cols-12 gap-8 items-center ${i % 2 ? "md:[&>div:first-child]:order-2" : ""}`}>
               <div className="md:col-span-5">
@@ -146,8 +146,8 @@ export default function Home() {
       </section>
 
       {/* GET IN TOUCH */}
-      <section className="max-w-6xl mx-auto px-6 py-24">
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-12 items-start">
+      <section className="max-w-6xl mx-auto px-5 sm:px-6 py-14 sm:py-20 md:py-24">
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-8 md:gap-12 items-start">
           <div>
             <div className="font-mono text-xs tracking-[0.4em] text-cs-blue mb-3">// 03 / CONNECT</div>
             <h2 className="font-display text-4xl md:text-5xl font-black tracking-wider mb-6 glow-blue">
