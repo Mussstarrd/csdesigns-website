@@ -22,8 +22,8 @@ export default function PortfolioGrid() {
             onClick={() => setFilter(c.id)}
             className={`px-4 py-2 font-mono text-xs tracking-widest uppercase border transition-all ${
               filter === c.id
-                ? "border-cs-cyan text-cs-cyan shadow-cyan"
-                : "border-cs-line text-cs-muted hover:border-cs-cyan/50 hover:text-cs-ink"
+                ? "border-cs-blue text-cs-blue shadow-blue"
+                : "border-cs-line text-cs-muted hover:border-cs-blue/50 hover:text-cs-ink"
             }`}
           >
             {c.label}
@@ -36,7 +36,7 @@ export default function PortfolioGrid() {
           <button
             key={p.id}
             onClick={() => setActiveIndex(i)}
-            className="group relative aspect-square overflow-hidden border border-cs-line bg-cs-panel hover:border-cs-cyan transition-all hover:shadow-cyan text-left"
+            className="group relative aspect-square overflow-hidden border border-cs-line bg-cs-panel hover:border-cs-blue transition-all hover:shadow-blue text-left"
           >
             <img
               src={p.image}
@@ -45,14 +45,14 @@ export default function PortfolioGrid() {
             />
             <div className="absolute inset-0 bg-gradient-to-t from-cs-bg via-cs-bg/40 to-transparent" />
             <div className="absolute bottom-0 left-0 right-0 p-5">
-              <div className="font-mono text-[10px] tracking-[0.25em] uppercase text-cs-cyan mb-1">
+              <div className="font-mono text-[10px] tracking-[0.25em] uppercase text-cs-blue mb-1">
                 {categories.find((c) => c.id === p.category)?.label}
               </div>
               <div className="font-display font-bold text-lg tracking-wide text-cs-ink">
                 {p.title}
               </div>
             </div>
-            <div className="absolute top-3 right-3 w-2 h-2 bg-cs-cyan opacity-0 group-hover:opacity-100 transition-opacity" style={{ boxShadow: "0 0 8px #00f0ff" }} />
+            <div className="absolute top-3 right-3 w-2 h-2 bg-cs-blue opacity-0 group-hover:opacity-100 transition-opacity" style={{ boxShadow: "0 0 8px #7dd3fc" }} />
           </button>
         ))}
       </div>
