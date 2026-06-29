@@ -101,7 +101,7 @@ export default function Home() {
       </section>
 
       {/* ABOUT */}
-      <section className="max-w-6xl mx-auto px-5 sm:px-6 py-20 md:py-28 mt-20 md:mt-24 border-t border-cs-line/40">
+      <section style={{paddingTop:"6rem",paddingBottom:"6rem",marginTop:"5rem",borderTop:"1px solid rgba(31,44,77,0.6)"}} className="max-w-6xl mx-auto px-5 sm:px-6">
         <div className="grid grid-cols-1 md:grid-cols-2 gap-8 md:gap-12 items-start">
           <div>
             <div className="font-mono text-xs tracking-[0.4em] text-cs-blue mb-3">// 01 / ABOUT</div>
@@ -124,7 +124,7 @@ export default function Home() {
       </section>
 
       {/* PORTFOLIO SHOWCASE */}
-      <section className="max-w-6xl mx-auto px-5 sm:px-6 py-20 md:py-28 mt-20 md:mt-24 border-t border-cs-line/40">
+      <section style={{paddingTop:"6rem",paddingBottom:"6rem",marginTop:"5rem",borderTop:"1px solid rgba(31,44,77,0.6)"}} className="max-w-6xl mx-auto px-5 sm:px-6">
         <div className="mb-10 md:mb-16">
           <div className="font-mono text-xs tracking-[0.4em] text-cs-blue mb-3">// 02 / SHOWCASE</div>
           <h2 className="font-display text-4xl md:text-5xl font-bold tracking-wider">PORTFOLIO SHOWCASE</h2>
@@ -156,7 +156,7 @@ export default function Home() {
       </section>
 
       {/* GET IN TOUCH */}
-      <section className="max-w-6xl mx-auto px-5 sm:px-6 py-20 md:py-28 mt-20 md:mt-24 border-t border-cs-line/40">
+      <section style={{paddingTop:"6rem",paddingBottom:"6rem",marginTop:"5rem",borderTop:"1px solid rgba(31,44,77,0.6)"}} className="max-w-6xl mx-auto px-5 sm:px-6">
         <div className="grid grid-cols-1 md:grid-cols-2 gap-8 md:gap-12 items-start">
           <div>
             <div className="font-mono text-xs tracking-[0.4em] text-cs-blue mb-3">// 03 / CONNECT</div>
