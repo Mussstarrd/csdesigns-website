@@ -1,33 +1,54 @@
 import { Link } from "react-router-dom";
 import Slideshow from "../components/Slideshow.jsx";
 
-const showcaseSlides = [
-  { src: "/assets/cs-logo.png", contain: true },
-  { src: "/portfolio/sneaker-ball.png" },
-  { src: "/portfolio/sundress-party.png" },
-  { src: "/portfolio/james-franklin.png" },
-  { src: "/portfolio/demi-ryan-classic.jpg" },
-  { src: "/portfolio/jaida-baby-shower.jpg" },
-];
-
 const showcase = [
   {
     n: "01",
     label: "Digital Art & Illustrations",
     desc: "Explore our collection of digital art and illustrations, each crafted with meticulous attention to detail to enhance visual storytelling and captivate the audience.",
-    slideshow: true,
+    interval: 5000,
+    slides: [
+      { src: "/assets/cs-logo.png", contain: true },
+      { src: "/portfolio/Screenshot 2026-06-28 153855.png" },
+      { src: "/portfolio/Screenshot (15).png" },
+    ],
   },
   {
     n: "02",
     label: "Brand Design & UI/UX",
     desc: "Dive into the world of brand design and UI/UX creations, where every design captures the essence of the brand story and elevates the user experience.",
-    image: "/portfolio/sneaker-ball.png",
+    interval: 6500,
+    slides: [
+      { src: "/portfolio/Screenshot (9).png" },
+      { src: "/portfolio/Screenshot (10).png" },
+      { src: "/portfolio/Screenshot (15).png" },
+    ],
   },
   {
     n: "03",
+    label: "Event Flyers",
+    desc: "From sneaker balls to sundress parties to community events — bold, scroll-stopping flyer design built around the energy of the event.",
+    interval: 4500,
+    slides: [
+      { src: "/portfolio/sneaker-ball.png" },
+      { src: "/portfolio/sundress-party.png" },
+      { src: "/portfolio/james-franklin.png" },
+      { src: "/portfolio/demi-ryan-classic.jpg" },
+      { src: "/portfolio/jaida-baby-shower.jpg" },
+    ],
+  },
+  {
+    n: "04",
     label: "Photography",
     desc: "Discover our photography portfolio, showcasing intricately designed visual compositions that add depth and authenticity to every project.",
-    image: "/portfolio/sundress-party.png",
+    interval: 5500,
+    slides: [
+      { src: "/portfolio/Screenshot (11).png" },
+      { src: "/portfolio/Screenshot (12).png" },
+      { src: "/portfolio/Screenshot (13).png" },
+      { src: "/portfolio/Screenshot (14).png" },
+      { src: "/assets/headshot.png", contain: true },
+    ],
   },
 ];
 
@@ -127,18 +148,7 @@ export default function Home() {
                 </Link>
               </div>
               <div className="md:col-span-7">
-                {s.slideshow ? (
-                  <Slideshow slides={showcaseSlides} interval={5000} />
-                ) : (
-                  <div className="relative border border-cs-line bg-cs-panel overflow-hidden aspect-video hover:border-cs-blue/60 hover:shadow-blue transition-all group flex items-center justify-center">
-                    <img
-                      src={s.image}
-                      alt={s.label}
-                      className="w-full h-full object-cover opacity-90 group-hover:opacity-100 transition-opacity"
-                    />
-                    <div className="absolute top-3 right-3 w-2 h-2 bg-cs-blue" style={{ boxShadow: "0 0 8px #7dd3fc" }} />
-                  </div>
-                )}
+                <Slideshow slides={s.slides} interval={s.interval} />
               </div>
             </div>
           ))}

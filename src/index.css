@@ -61,7 +61,7 @@ a { color: inherit; text-decoration: none; }
   pointer-events: none;
   z-index: 0;
   opacity: 0.06;
-  background-image: url("/assets/cs-logo.png");
+  background-image: url("/assets/cs-backdrop.png");
   background-size: contain;
   background-position: center;
   background-repeat: no-repeat;
