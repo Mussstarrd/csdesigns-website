@@ -1,6 +1,7 @@
 import { Routes, Route } from "react-router-dom";
 import Navbar from "./components/Navbar.jsx";
 import Footer from "./components/Footer.jsx";
+import MusicToggle from "./components/MusicToggle.jsx";
 import Home from "./pages/Home.jsx";
 import Portfolio from "./pages/Portfolio.jsx";
 import Contact from "./pages/Contact.jsx";
@@ -20,6 +21,7 @@ export default function App() {
         </main>
         <Footer />
       </div>
+      <MusicToggle />
     </div>
   );
 }
