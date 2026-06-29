@@ -1,12 +1,21 @@
 import { Link } from "react-router-dom";
+import Slideshow from "../components/Slideshow.jsx";
+
+const showcaseSlides = [
+  { src: "/assets/cs-logo.png", contain: true },
+  { src: "/portfolio/sneaker-ball.png" },
+  { src: "/portfolio/sundress-party.png" },
+  { src: "/portfolio/james-franklin.png" },
+  { src: "/portfolio/demi-ryan-classic.jpg" },
+  { src: "/portfolio/jaida-baby-shower.jpg" },
+];
 
 const showcase = [
   {
     n: "01",
     label: "Digital Art & Illustrations",
     desc: "Explore our collection of digital art and illustrations, each crafted with meticulous attention to detail to enhance visual storytelling and captivate the audience.",
-    image: "/assets/cs-logo.png",
-    contain: true,
+    slideshow: true,
   },
   {
     n: "02",
@@ -118,15 +127,18 @@ export default function Home() {
                 </Link>
               </div>
               <div className="md:col-span-7">
-                <div className="relative border border-cs-line bg-cs-panel overflow-hidden aspect-video hover:border-cs-blue/60 hover:shadow-blue transition-all group flex items-center justify-center">
-                  <img
-                    src={s.image}
-                    alt={s.label}
-                    className={`${s.contain ? "max-h-[85%] max-w-[70%] object-contain" : "w-full h-full object-cover"} opacity-90 group-hover:opacity-100 transition-opacity`}
-                    style={s.contain ? { filter: "drop-shadow(0 0 24px rgba(125, 211, 252, 0.5))" } : undefined}
-                  />
-                  <div className="absolute top-3 right-3 w-2 h-2 bg-cs-blue" style={{ boxShadow: "0 0 8px #7dd3fc" }} />
-                </div>
+                {s.slideshow ? (
+                  <Slideshow slides={showcaseSlides} interval={5000} />
+                ) : (
+                  <div className="relative border border-cs-line bg-cs-panel overflow-hidden aspect-video hover:border-cs-blue/60 hover:shadow-blue transition-all group flex items-center justify-center">
+                    <img
+                      src={s.image}
+                      alt={s.label}
+                      className="w-full h-full object-cover opacity-90 group-hover:opacity-100 transition-opacity"
+                    />
+                    <div className="absolute top-3 right-3 w-2 h-2 bg-cs-blue" style={{ boxShadow: "0 0 8px #7dd3fc" }} />
+                  </div>
+                )}
               </div>
             </div>
           ))}
