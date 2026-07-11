@@ -78,7 +78,7 @@ const RULES = [
 
 // Words the filter must NEVER touch even though a banned token appears inside
 // them ("\b" already protects most cases; this protects hyphen edge cases).
-const SAFE_TERMS = [/\bswung\b/gi, /\bhalftime\b/gi];
+const SAFE_TERMS = [/\bswung\b/gi, /\bhalftime\b/gi, /\bg-funk\b/gi];
 
 /**
  * Filter a single string. Returns { text, hits } where hits is a list of

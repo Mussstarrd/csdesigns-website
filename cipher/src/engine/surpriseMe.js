@@ -70,7 +70,7 @@ const COMBOS = [
   },
   {
     region: 'Virginia', era: 'early-2000s', key: 'E-flat minor', bpm: 96,
-    genre: 'stripped percussive neo-funk knock', feel: '',
+    genre: 'stripped percussive machine-snap bounce', feel: '',
     percussion: ['rubber-band snare snaps dry, zero tail', 'clipped vocal grunts used as drums'],
     lowEnd: ['sub pulses in short staccato dots'],
     lead: ['single detuned synth stab, alien and plastic'],

@@ -26,6 +26,11 @@ test('never touches the approved word "halftime"', () => {
   assert.equal(hits.length, 0);
 });
 
+test('"g-funk" compound survives while bare "funk" is substituted', () => {
+  assert.equal(filterBannedWords('west coast g-funk bounce').text, 'west coast g-funk bounce');
+  assert.equal(filterBannedWords('pure funk').text, 'pure greasy pocket groove');
+});
+
 test('"swung" survives while "swing" is substituted', () => {
   assert.equal(filterBannedWords('swung triplet cadence').text, 'swung triplet cadence');
   assert.ok(!/\bswing\b/i.test(filterBannedWords('light swing groove').text));
