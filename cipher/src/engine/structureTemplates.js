@@ -142,13 +142,29 @@ const TEMPLATES = [
   },
 ];
 
+// Words that start the "what it does" half of a descriptor — element names
+// stop before them so "808 sustains long and syrup-thick" becomes "808".
+const VERBISH = new Set([
+  'lands', 'land', 'landing', 'sustains', 'stutter', 'stutters', 'floods',
+  'drifts', 'drifting', 'dripping', 'wobbling', 'smear', 'smears', 'enters',
+  'hits', 'hitting', 'punches', 'rolls', 'rolling', 'slides', 'sliding',
+  'bends', 'bending', 'tucked', 'mixed', 'tuned', 'ride', 'rides', 'riding',
+  'swells', 'plucks', 'stabs', 'circles', 'circling', 'hums', 'hanging',
+  'sits', 'sitting', 'walks', 'cracks', 'snaps', 'thuds', 'bounces',
+]);
+
 /** Derive short element names from the interpretation JSON. */
 export function deriveElementNames(interpretation = {}) {
   const first = (arr, fallback) => {
     const v = Array.isArray(arr) && arr.length ? String(arr[0]) : '';
-    // Keep element names short: first 3 significant words.
-    const words = v.split(/\s+/).filter(Boolean).slice(0, 3).join(' ');
-    return words || fallback;
+    // Keep element names short: up to 3 words, stopping before verbs.
+    const words = [];
+    for (const w of v.split(/\s+/).filter(Boolean)) {
+      if (words.length > 0 && VERBISH.has(w.toLowerCase())) break;
+      words.push(w);
+      if (words.length === 3) break;
+    }
+    return words.join(' ') || fallback;
   };
   return {
     sub: first(interpretation.low_end, 'sub'),
