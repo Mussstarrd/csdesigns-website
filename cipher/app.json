@@ -1,0 +1,23 @@
+{
+  "expo": {
+    "name": "CIPHER",
+    "slug": "cipher",
+    "version": "1.0.0",
+    "orientation": "portrait",
+    "userInterfaceStyle": "dark",
+    "backgroundColor": "#0A0A0F",
+    "splash": {
+      "backgroundColor": "#0A0A0F",
+      "resizeMode": "contain"
+    },
+    "ios": {
+      "supportsTablet": false,
+      "bundleIdentifier": "app.cipher.prompts"
+    },
+    "android": {
+      "package": "app.cipher.prompts",
+      "backgroundColor": "#0A0A0F"
+    },
+    "assetBundlePatterns": ["**/*"]
+  }
+}
