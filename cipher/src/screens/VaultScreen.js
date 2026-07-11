@@ -12,6 +12,8 @@ import { Screen, SectionTitle, Body, Chip, Row, GhostButton } from '../component
 import FreshnessBadge from '../components/FreshnessBadge.js';
 import { useVaultStore } from '../store/useVaultStore.js';
 import { usePromptStore } from '../store/usePromptStore.js';
+import { useFeedbackStore } from '../store/useFeedbackStore.js';
+import FeedbackModal from '../components/FeedbackModal.js';
 
 const FILTERS = ['all', 'suno', 'mureka'];
 const SORTS = ['recent', 'freshness'];
@@ -23,10 +25,12 @@ export default function VaultScreen({ navigation }) {
   const deleteVersion = useVaultStore((s) => s.deleteVersion);
   const deleteSession = useVaultStore((s) => s.deleteSession);
 
+  const recordFeedback = useFeedbackStore((s) => s.record);
   const [query, setQuery] = useState('');
   const [filter, setFilter] = useState('all');
   const [sort, setSort] = useState('recent');
   const [expanded, setExpanded] = useState(null);
+  const [ratingVersion, setRatingVersion] = useState(null);
 
   const visible = useMemo(() => {
     let list = sessions;
@@ -136,6 +140,12 @@ export default function VaultScreen({ navigation }) {
                   <Row style={{ gap: spacing.sm, marginTop: spacing.sm }}>
                     <GhostButton title="COPY" onPress={() => copyVersion(v)} style={styles.miniBtn} />
                     <GhostButton
+                      title="RATE"
+                      color={colors.accent}
+                      onPress={() => setRatingVersion(v)}
+                      style={styles.miniBtn}
+                    />
+                    <GhostButton
                       title="EDIT"
                       onPress={() => {
                         loadSaved(v);
@@ -164,6 +174,21 @@ export default function VaultScreen({ navigation }) {
           </View>
         );
       })}
+
+      <FeedbackModal
+        visible={ratingVersion != null}
+        onClose={() => setRatingVersion(null)}
+        onSubmit={({ rating, issues, unwantedText }) => {
+          const v = ratingVersion;
+          recordFeedback({
+            platform: v.suno ? 'suno' : 'mureka',
+            rating,
+            issues,
+            unwantedText,
+            promptText: v.suno?.stylePrompt ?? v.mureka?.musicStyle ?? '',
+          });
+        }}
+      />
     </Screen>
   );
 }

@@ -21,6 +21,8 @@ import {
 import PlatformSelector from '../components/PlatformSelector.js';
 import { useSettingsStore, DAILY_FREE_LIMIT } from '../store/useSettingsStore.js';
 import { useDecoderStore } from '../store/useDecoderStore.js';
+import { useFeedbackStore } from '../store/useFeedbackStore.js';
+import { getDynamicRules } from '../engine/bannedWords.js';
 import { suggestArtist } from '../services/artistDecoder.js';
 import { cetHour } from '../engine/trafficLight.js';
 
@@ -29,6 +31,9 @@ export default function SettingsScreen({ navigation }) {
   const styleProfile = settings.styleProfile();
   const decoderSource = useDecoderStore((s) => s.source);
   const entryCount = useDecoderStore((s) => s.entries.length);
+  const feedbackCount = useFeedbackStore((s) => s.events.length);
+  const suspects = useFeedbackStore((s) => s.suspects());
+  const dynamicRuleCount = getDynamicRules().length;
 
   const [suggestName, setSuggestName] = useState('');
   const [suggestEra, setSuggestEra] = useState('');
@@ -165,6 +170,38 @@ export default function SettingsScreen({ navigation }) {
         />
         {suggestState === 'error' && (
           <Text style={styles.error}>Couldn't send — check your connection.</Text>
+        )}
+      </Card>
+
+      <Card>
+        <Label>Trigger Lab (Learning System)</Label>
+        <Row style={{ justifyContent: 'space-between' }}>
+          <Body dim>Generations rated</Body>
+          <Mono color={colors.text}>{feedbackCount}</Mono>
+        </Row>
+        <Row style={{ justifyContent: 'space-between', marginTop: 6 }}>
+          <Body dim>Synced kill-list rules (all users)</Body>
+          <Mono color={colors.accent}>{dynamicRuleCount}</Mono>
+        </Row>
+        {suspects.length > 0 ? (
+          <View style={{ marginTop: spacing.sm }}>
+            <Label>Your local suspects</Label>
+            {suspects.slice(0, 8).map((s) => (
+              <Row key={s.term} style={{ justifyContent: 'space-between', marginTop: 4 }}>
+                <Body style={{ fontSize: 13 }}>"{s.term}"</Body>
+                <Mono color={s.verdict === 'hard-trigger' ? colors.danger : colors.warn}>
+                  {s.verdict === 'hard-trigger' ? 'TRIGGER?' : 'WATCH'} {s.bad}/{s.total}
+                  {s.summons > 0 ? ` ·${s.summons}⚑` : ''}
+                </Mono>
+              </Row>
+            ))}
+          </View>
+        ) : (
+          <Body dim style={{ fontSize: 11, marginTop: spacing.sm }}>
+            Rate your generations (Output screen or Vault → RATE) and CIPHER learns
+            which words trigger, gate, or scramble output. Suspects confirmed across
+            all users become kill-list rules automatically — no app update needed.
+          </Body>
         )}
       </Card>
 

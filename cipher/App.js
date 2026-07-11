@@ -18,6 +18,8 @@ import {
 } from '@expo-google-fonts/inter';
 import Navigation from './src/navigation/index.js';
 import { useDecoderStore } from './src/store/useDecoderStore.js';
+import { useFeedbackStore } from './src/store/useFeedbackStore.js';
+import { loadDynamicRules } from './src/services/feedbackService.js';
 import { colors } from './src/theme/index.js';
 
 export default function App() {
@@ -33,6 +35,10 @@ export default function App() {
   useEffect(() => {
     // Fetch + cache the Artist Decoder DB (24h TTL, offline fallback).
     loadDecoder();
+    // Learning System: install confirmed dynamic kill-list rules and retry
+    // any feedback submissions that failed offline.
+    loadDynamicRules();
+    useFeedbackStore.getState().flush();
   }, [loadDecoder]);
 
   if (!fontsLoaded) {

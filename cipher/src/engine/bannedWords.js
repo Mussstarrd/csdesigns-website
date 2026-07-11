@@ -80,6 +80,41 @@ const RULES = [
 // them ("\b" already protects most cases; this protects hyphen edge cases).
 const SAFE_TERMS = [/\bswung\b/gi, /\bhalftime\b/gi, /\bg-funk\b/gi];
 
+// --- Dynamic rules (the Learning System) -----------------------------------
+// Confirmed trigger words discovered from aggregated user feedback live in
+// the Supabase dynamic_rules table and are injected here at app launch —
+// the kill list grows without an app release. Same shape as static RULES.
+let DYNAMIC_RULES = [];
+
+/**
+ * Install server-confirmed rules. `rules` is [{word, substitute?}].
+ * Words are compiled to case-insensitive word-boundary patterns; invalid
+ * entries are skipped. Replaces the previous dynamic set (idempotent).
+ */
+export function setDynamicRules(rules = []) {
+  DYNAMIC_RULES = [];
+  for (const rule of rules) {
+    const word = String(rule?.word ?? '').trim();
+    if (!word || word.length > 60) continue;
+    const escaped = word.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+    DYNAMIC_RULES.push({
+      label: word,
+      pattern: new RegExp(`\\b${escaped}\\b`, 'gi'),
+      substitute: rule.substitute ? String(rule.substitute) : undefined,
+      dynamic: true,
+    });
+  }
+}
+
+export function getDynamicRules() {
+  return DYNAMIC_RULES;
+}
+
+/** Static + dynamic, in application order (multi-word statics still first). */
+function allRules() {
+  return DYNAMIC_RULES.length ? [...RULES, ...DYNAMIC_RULES] : RULES;
+}
+
 /**
  * Filter a single string. Returns { text, hits } where hits is a list of
  * { label, action: 'substituted' | 'stripped' } for warning logs.
@@ -100,7 +135,7 @@ export function filterBannedWords(input) {
     });
   });
 
-  for (const rule of RULES) {
+  for (const rule of allRules()) {
     rule.pattern.lastIndex = 0;
     if (!rule.pattern.test(text)) continue;
     rule.pattern.lastIndex = 0;
@@ -156,7 +191,7 @@ export function containsBannedWord(input) {
     safe.lastIndex = 0;
     text = text.replace(safe, '');
   }
-  return RULES.some((rule) => {
+  return allRules().some((rule) => {
     rule.pattern.lastIndex = 0;
     return rule.pattern.test(text);
   });

@@ -133,6 +133,26 @@ banned-word filtering + substitution, artist-name scrubbing, Prompt Stack
 ordering, Mureka BPM→feel conversion, structure-block injection, blend
 hierarchy, and seed-audio omission.
 
+## The Learning System (trigger discovery)
+
+The static kill list encodes *known* trigger words; the Learning System
+discovers new ones from real generations:
+
+1. After running a prompt on Suno/Mureka, the user rates the result
+   (🔥/😐/🗑) on the Output screen or in the Vault, tags what went wrong
+   (unwanted element, genre drift, muddy mix, ignored exclusion…), and can
+   name the element that appeared uninvited.
+2. `src/engine/feedbackAttribution.js` deterministically attributes outcomes
+   to prompt terms (unigrams + bigrams): every term accumulates good/bad
+   evidence; terms co-occurring with a *named* unwanted element carry the
+   strongest weight. Suspects surface locally in Settings → Trigger Lab.
+3. Feedback also syncs to Supabase (`prompt_feedback`), where the
+   `trigger_suspects` view aggregates evidence across all users.
+4. The owner reviews suspects and promotes confirmed ones into the
+   `dynamic_rules` table. Every app fetches confirmed rules on launch
+   (24h cache) and injects them into the banned-word filter — the kill list
+   grows **without an app release**.
+
 ## Free tier / cost controls
 
 - **Build It** and **Blend It** are fully deterministic — no Claude call, unlimited and free.

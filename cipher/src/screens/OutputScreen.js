@@ -12,6 +12,8 @@ import FreshnessBadge from '../components/FreshnessBadge.js';
 import CharCounter from '../components/CharCounter.js';
 import PromptCard from '../components/PromptCard.js';
 import ConflictWarning from '../components/ConflictWarning.js';
+import FeedbackModal from '../components/FeedbackModal.js';
+import { useFeedbackStore } from '../store/useFeedbackStore.js';
 import { usePromptStore } from '../store/usePromptStore.js';
 import { useVaultStore } from '../store/useVaultStore.js';
 import { useSettingsStore } from '../store/useSettingsStore.js';
@@ -34,6 +36,8 @@ export default function OutputScreen({ navigation }) {
   const [freshness, setFreshness] = useState(null);
   const [vector, setVector] = useState(null);
   const [saved, setSaved] = useState(false);
+  const [ratingOpen, setRatingOpen] = useState(false);
+  const recordFeedback = useFeedbackStore((s) => s.record);
 
   const styleText = result?.suno?.stylePrompt ?? result?.mureka?.musicStyle ?? '';
 
@@ -241,6 +245,30 @@ export default function OutputScreen({ navigation }) {
           disabled={saved}
         />
       </Row>
+
+      <GhostButton
+        title="⚑ RATE THE GENERATION (after you run it)"
+        color={colors.textDim}
+        onPress={() => setRatingOpen(true)}
+        style={{ marginTop: spacing.sm }}
+      />
+
+      <FeedbackModal
+        visible={ratingOpen}
+        onClose={() => setRatingOpen(false)}
+        onSubmit={({ rating, issues, unwantedText }) =>
+          recordFeedback({
+            platform: tab,
+            rating,
+            issues,
+            unwantedText,
+            promptText:
+              tab === 'suno'
+                ? result.suno?.stylePrompt ?? ''
+                : result.mureka?.musicStyle ?? '',
+          })
+        }
+      />
     </Screen>
   );
 }
