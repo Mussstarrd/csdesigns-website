@@ -18,12 +18,12 @@ export class DailyLimitError extends Error {
  * Interpret free text (plus optional decoder context) into an interpretation
  * object. Returns { interpretation, cached, remaining }.
  */
-export async function interpretDescription(input, context = '') {
+export async function interpretDescription(input, context = '', { bypassCache = false } = {}) {
   if (!supabase) throw new Error('Describe It needs a connection — Build It works offline.');
   const deviceId = await getDeviceId();
 
   const { data, error } = await supabase.functions.invoke('interpret', {
-    body: { input, context, deviceId },
+    body: { input, context, deviceId, bypassCache },
   });
 
   if (error) {

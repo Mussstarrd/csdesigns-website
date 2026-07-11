@@ -22,7 +22,9 @@ export default function PromptCard({
   const [copied, setCopied] = useState(false);
 
   const copy = async () => {
-    await Clipboard.setStringAsync(text ?? '');
+    // "!" exemption markers are for CIPHER's filter, not the platform —
+    // strip them from what actually gets pasted into Suno/Mureka.
+    await Clipboard.setStringAsync((text ?? '').replace(/!([a-z0-9'-]+)/gi, '$1'));
     setCopied(true);
     setTimeout(() => setCopied(false), 1500);
   };

@@ -177,15 +177,19 @@ export default function VaultScreen({ navigation }) {
 
       <FeedbackModal
         visible={ratingVersion != null}
+        defaultPlatform={ratingVersion?.suno ? 'suno' : 'mureka'}
         onClose={() => setRatingVersion(null)}
-        onSubmit={({ rating, issues, unwantedText }) => {
+        onSubmit={({ rating, issues, unwantedText, platform }) => {
           const v = ratingVersion;
           recordFeedback({
-            platform: v.suno ? 'suno' : 'mureka',
+            platform,
             rating,
             issues,
             unwantedText,
-            promptText: v.suno?.stylePrompt ?? v.mureka?.musicStyle ?? '',
+            promptText:
+              platform === 'mureka'
+                ? v.mureka?.musicStyle ?? v.suno?.stylePrompt ?? ''
+                : v.suno?.stylePrompt ?? v.mureka?.musicStyle ?? '',
           });
         }}
       />

@@ -49,9 +49,10 @@ test('texture contributes lead, room, feeling only', () => {
   assert.ok(!interp.feeling.some((d) => d.includes('foundation')));
 });
 
-test("foundation's key wins", () => {
+test("foundation's key wins; texture never colors key_emotion (modality dominance)", () => {
   const interp = blendDna(foundation, texture, 0.3);
   assert.equal(interp.key, 'A minor');
+  assert.equal(interp.key_emotion, '');
 });
 
 test("foundation's avoid list drops conflicting texture descriptors", () => {

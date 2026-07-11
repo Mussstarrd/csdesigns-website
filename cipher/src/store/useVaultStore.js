@@ -16,6 +16,25 @@ import AsyncStorage from '@react-native-async-storage/async-storage';
  *   starred: boolean,
  * }
  */
+// Freshness only ever compares against the most recent entries, but the
+// whole Vault persists as ONE AsyncStorage row (Android caps a row around
+// 2MB) — so embedding vectors are kept only on the newest N versions and
+// stripped from everything older.
+const VECTOR_KEEP = 20;
+
+function pruneVectors(sessions) {
+  const all = [];
+  for (const s of sessions) for (const v of s.versions) all.push(v);
+  all.sort((a, b) => b.createdAt - a.createdAt);
+  const keep = new Set(all.slice(0, VECTOR_KEEP).map((v) => v.id));
+  return sessions.map((s) => ({
+    ...s,
+    versions: s.versions.map((v) =>
+      v.vector && !keep.has(v.id) ? { ...v, vector: null } : v
+    ),
+  }));
+}
+
 export const useVaultStore = create(
   persist(
     (set, get) => ({
@@ -45,7 +64,7 @@ export const useVaultStore = create(
             versions: [entry],
           });
         }
-        set({ sessions });
+        set({ sessions: pruneVectors(sessions) });
         return entry.id;
       },
 

@@ -42,15 +42,22 @@ const STOPWORDS = new Set([
  * Extract candidate terms from a prompt: unigrams and bigrams, lowercased,
  * stopword-filtered. Bigrams matter — "music box" may trigger where neither
  * word does alone.
+ *
+ * Extraction is scoped WITHIN comma-delimited descriptor segments (Gemini
+ * review): bigrams never span two descriptors, so one bad generation smears
+ * blame across far fewer spurious terms.
  */
 export function extractTerms(promptText) {
-  const words = String(promptText ?? '')
-    .toLowerCase()
-    .split(/[^a-z0-9'-]+/)
-    .filter((w) => w.length > 1 && !STOPWORDS.has(w) && !/^\d+$/.test(w));
-  const terms = new Set(words);
-  for (let i = 0; i < words.length - 1; i++) {
-    terms.add(`${words[i]} ${words[i + 1]}`);
+  const terms = new Set();
+  for (const segment of String(promptText ?? '').split(',')) {
+    const words = segment
+      .toLowerCase()
+      .split(/[^a-z0-9'-]+/)
+      .filter((w) => w.length > 1 && !STOPWORDS.has(w) && !/^\d+$/.test(w));
+    for (const w of words) terms.add(w);
+    for (let i = 0; i < words.length - 1; i++) {
+      terms.add(`${words[i]} ${words[i + 1]}`);
+    }
   }
   return [...terms];
 }
@@ -95,7 +102,10 @@ export function scoreSuspects(events = [], { minOccurrences = 3 } = {}) {
   const out = [];
   for (const [term, s] of stats) {
     const total = s.bad + s.good;
-    if (total < minOccurrences) continue;
+    // Cold-start rule (Gemini review): a term that co-occurred with a NAMED
+    // unwanted element counts from its first occurrence — explicit user
+    // evidence beats the statistical minimum.
+    if (total < minOccurrences && s.summons < 1) continue;
     const suspicion = (s.bad + 1) / (total + 2); // Laplace smoothing
     out.push({ term, bad: s.bad, good: s.good, total, suspicion, summons: s.summons });
   }
@@ -115,6 +125,10 @@ export function classifySuspect({ suspicion, total, summons }) {
     return 'hard-trigger';
   }
   if (suspicion >= 0.55) return 'watch';
+  // Cold-start: a named-offender co-occurrence promotes to watch, but only
+  // while evidence is scarce or leaning bad — it must not override a term
+  // that repeatedly appears in fire generations.
+  if (summons >= 1 && (total < 3 || suspicion >= 0.5)) return 'watch';
   return 'clear';
 }
 

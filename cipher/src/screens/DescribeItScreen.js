@@ -80,7 +80,9 @@ export default function DescribeItScreen({ navigation }) {
         context
       );
       if (!cached) recordAiUsage(remaining);
-      goToOutput(interpretation);
+      // rawInput + context ride along so the Output screen's NEW
+      // INTERPRETATION button can re-call Claude with a cache bypass.
+      goToOutput(interpretation, { rawInput: finalInput, context });
     } catch (e) {
       if (e instanceof DailyLimitError) {
         navigation.navigate('Paywall');

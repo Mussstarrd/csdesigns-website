@@ -2,6 +2,7 @@ import { create } from 'zustand';
 import { buildPrompt } from '../engine/buildPrompt.js';
 import { buildFromChips } from '../engine/chipBuilder.js';
 import { blendDna } from '../engine/blend.js';
+import { sampleInterpretation } from '../engine/dna.js';
 import { surpriseMe } from '../engine/surpriseMe.js';
 import { validateInterpretation } from '../engine/interpretationSchema.js';
 import { validateSuno, validateMureka } from '../engine/validator.js';
@@ -29,7 +30,11 @@ export const usePromptStore = create((set, get) => ({
   runBuild: ({ source, interpretation, energy = 3, seedAudio, platform }) => {
     const artistNames = useDecoderStore.getState().artistNames();
     const { interpretation: clean } = validateInterpretation(interpretation);
-    const result = buildPrompt(clean, {
+    // Describe It interpretations arrive as POOLS (Claude over-generates
+    // 5-6 descriptors per category); each build assembles from a sample so
+    // [REGENERATE] has real variation without another API call.
+    const built = source?.type === 'describe' ? sampleInterpretation(clean) : clean;
+    const result = buildPrompt(built, {
       artistNames,
       energy,
       seedAudio: seedAudio ?? get().seedAudio,
@@ -56,18 +61,24 @@ export const usePromptStore = create((set, get) => ({
     const { source, energy, seedAudio, interpretation } = get();
     if (!source || (source.type === 'saved' && !interpretation)) return null;
     const rng = Math.random;
-    let interp = interpretation;
+    let pool = interpretation; // what we keep in state
+    let built; // what we assemble this roll
     if (source.type === 'build') {
-      interp = buildFromChips(source.chips, source.overrides, rng);
+      pool = built = buildFromChips(source.chips, source.overrides, rng);
     } else if (source.type === 'blend') {
-      interp = blendDna(source.foundation, source.texture, source.flavor, source.overrides, rng);
+      pool = built = blendDna(
+        source.foundation, source.texture, source.flavor, source.overrides, rng
+      );
     } else if (source.type === 'surprise') {
-      interp = surpriseMe(rng);
+      pool = built = surpriseMe(rng);
+    } else {
+      // describe: re-sample from the pooled interpretation — the pool itself
+      // stays in state so every regenerate draws from the same LLM call.
+      built = sampleInterpretation(pool, {}, rng);
     }
-    // describe: keep the interpretation, re-assembly still re-runs filters.
     const artistNames = useDecoderStore.getState().artistNames();
-    const result = buildPrompt(interp, { artistNames, energy, seedAudio });
-    set({ interpretation: interp, result, regenCount: get().regenCount + 1 });
+    const result = buildPrompt(built, { artistNames, energy, seedAudio });
+    set({ interpretation: pool, result, regenCount: get().regenCount + 1 });
     return result;
   },
 

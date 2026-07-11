@@ -20,9 +20,10 @@ import { useSettingsStore } from '../store/useSettingsStore.js';
 import { computeFreshness, shouldWarnFreshness } from '../engine/freshness.js';
 import { formatExclusions } from '../engine/exclusions.js';
 import { embedText } from '../services/embeddings.js';
+import { interpretDescription, DailyLimitError } from '../services/claudeInterpreter.js';
 
 export default function OutputScreen({ navigation }) {
-  const { result, platform, interpretation, regenerate, applyEdit, sessionKey, source } =
+  const { result, platform, interpretation, regenerate, applyEdit, sessionKey, source, runBuild, energy, seedAudio } =
     usePromptStore();
   const saveVersion = useVaultStore((s) => s.saveVersion);
   const recentEntries = useVaultStore((s) => s.recentEntries);
@@ -37,7 +38,34 @@ export default function OutputScreen({ navigation }) {
   const [vector, setVector] = useState(null);
   const [saved, setSaved] = useState(false);
   const [ratingOpen, setRatingOpen] = useState(false);
+  const [reinterpreting, setReinterpreting] = useState(false);
+  const [reinterpretError, setReinterpretError] = useState(null);
   const recordFeedback = useFeedbackStore((s) => s.record);
+  const recordAiUsage = useSettingsStore((s) => s.recordAiUsage);
+
+  // NEW INTERPRETATION: a fresh Claude call that bypasses the shared cache.
+  // Costs one daily credit — [REGENERATE] (free, local re-sample) sits next
+  // to it for the cheap path.
+  const canReinterpret = source?.type === 'describe' && !!source.rawInput;
+  const onNewInterpretation = async () => {
+    setReinterpreting(true);
+    setReinterpretError(null);
+    try {
+      const { interpretation: fresh, cached, remaining } = await interpretDescription(
+        source.rawInput,
+        source.context ?? '',
+        { bypassCache: true }
+      );
+      if (!cached) recordAiUsage(remaining);
+      runBuild({ source, interpretation: fresh, energy, seedAudio, platform });
+      setDismissedConflicts([]);
+    } catch (e) {
+      if (e instanceof DailyLimitError) navigation.navigate('Paywall');
+      else setReinterpretError(e.message);
+    } finally {
+      setReinterpreting(false);
+    }
+  };
 
   const styleText = result?.suno?.stylePrompt ?? result?.mureka?.musicStyle ?? '';
 
@@ -246,6 +274,20 @@ export default function OutputScreen({ navigation }) {
         />
       </Row>
 
+      {canReinterpret && (
+        <GhostButton
+          title={reinterpreting ? '… CALLING THE INTERPRETER' : '✦ NEW INTERPRETATION (uses 1 AI credit)'}
+          color={colors.accent}
+          onPress={reinterpreting ? () => {} : onNewInterpretation}
+          style={{ marginTop: spacing.sm }}
+        />
+      )}
+      {reinterpretError && (
+        <Body dim style={{ color: colors.danger, fontSize: 12, marginTop: spacing.xs }}>
+          {reinterpretError}
+        </Body>
+      )}
+
       <GhostButton
         title="⚑ RATE THE GENERATION (after you run it)"
         color={colors.textDim}
@@ -255,17 +297,18 @@ export default function OutputScreen({ navigation }) {
 
       <FeedbackModal
         visible={ratingOpen}
+        defaultPlatform={tab}
         onClose={() => setRatingOpen(false)}
-        onSubmit={({ rating, issues, unwantedText }) =>
+        onSubmit={({ rating, issues, unwantedText, platform: ranOn }) =>
           recordFeedback({
-            platform: tab,
+            platform: ranOn,
             rating,
             issues,
             unwantedText,
             promptText:
-              tab === 'suno'
-                ? result.suno?.stylePrompt ?? ''
-                : result.mureka?.musicStyle ?? '',
+              ranOn === 'suno'
+                ? result.suno?.stylePrompt ?? result.mureka?.musicStyle ?? ''
+                : result.mureka?.musicStyle ?? result.suno?.stylePrompt ?? '',
           })
         }
       />

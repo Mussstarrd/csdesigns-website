@@ -144,6 +144,28 @@ AsyncStorage) · Supabase (Postgres/RLS/Edge Functions) · Claude
 `claude-sonnet-4-6` for JSON extraction only · Voyage embeddings ·
 Node built-in test runner for the engine (67 tests, all passing).
 
+## Review round 1 — outcomes (Gemini, 2026-07-11)
+
+Adopted and built: **(1)** Vault embedding vectors now pruned to the newest
+20 versions (single-AsyncStorage-row size limit on Android); **(3)** Claude
+over-generates 5-6 descriptors per category and REGENERATE re-samples the
+pool locally (free); a separate NEW INTERPRETATION button bypasses the
+shared cache and spends one daily credit (variants are not written back to
+the cache); **(4)** attribution n-grams are scoped within comma-delimited
+descriptor segments, and a named-offender co-occurrence counts from its
+first occurrence — but only while evidence is scarce or leaning bad, so it
+can't override a term with repeated 🔥 ratings; **(5)** the feedback modal
+has a mandatory "Executed on: Suno v5.5 / Mureka V9" toggle; **(6)** a `!`
+exemption prefix (`!brass`) shields a word from the kill list during manual
+edits and is stripped from copied text; **(8)** Texture no longer colors
+key_emotion — strict Foundation modality dominance.
+
+Rejected: **(2)** schema hydration (already built, and `|| ["hip hop"]`
+would silently invent a genre); **(9)** validation-order change (pipeline
+already runs in that order, locked by tests). Deferred to owner: **(7)**
+Traffic Light peak window (12:00–23:00 CET vs proposed 16:00–04:00 CET) —
+both are heuristics; one constant to change either way.
+
 ## What happens next
 
 Owner runs it via Expo Go (deterministic paths work with zero backend

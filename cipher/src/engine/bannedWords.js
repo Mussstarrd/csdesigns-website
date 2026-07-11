@@ -126,8 +126,17 @@ export function filterBannedWords(input) {
   let text = String(input);
   const hits = [];
 
-  // Temporarily shield safe terms so e.g. "swung" survives the "swing" rule.
   const shields = [];
+
+  // Exemption prefix (power users editing prompts by hand): "!brass" keeps
+  // the word "brass" — the "!" is stripped, the word is shielded from every
+  // rule, static and dynamic. One word per "!"; use "!rim !shot" for phrases.
+  text = text.replace(/!([a-z0-9'-]+)/gi, (_, word) => {
+    shields.push(word);
+    return `@@SHIELD@@${shields.length - 1}@@SHIELD@@`;
+  });
+
+  // Temporarily shield safe terms so e.g. "swung" survives the "swing" rule.
   SAFE_TERMS.forEach((safe, i) => {
     text = text.replace(safe, (m) => {
       shields.push(m);
@@ -187,6 +196,8 @@ export function scrubArtistNames(input, names = []) {
 export function containsBannedWord(input) {
   if (!input) return false;
   let text = String(input);
+  // "!"-exempted words don't count as violations.
+  text = text.replace(/!([a-z0-9'-]+)/gi, '');
   for (const safe of SAFE_TERMS) {
     safe.lastIndex = 0;
     text = text.replace(safe, '');

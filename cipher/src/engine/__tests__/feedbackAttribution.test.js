@@ -64,6 +64,24 @@ test('minOccurrences gate keeps one-off noise out', () => {
   assert.equal(suspects.length, 0);
 });
 
+test('bigrams never span comma-delimited descriptor segments', () => {
+  const terms = extractTerms('dark trap, heavy sub');
+  assert.ok(terms.includes('dark trap'));
+  assert.ok(terms.includes('heavy sub'));
+  assert.ok(!terms.includes('trap heavy'), 'bigram crossed a comma');
+});
+
+test('cold start: a named offender counts from a single occurrence', () => {
+  const suspects = scoreSuspects(
+    [ev('lonely descriptor here', 'trash', ['unwanted_element'], 'saxophone')],
+    { minOccurrences: 3 }
+  );
+  const term = suspects.find((s) => s.term === 'lonely');
+  assert.ok(term, 'summons evidence should bypass the minimum');
+  assert.equal(term.summons, 1);
+  assert.equal(classifySuspect(term), 'watch');
+});
+
 test('classification thresholds', () => {
   assert.equal(classifySuspect({ suspicion: 0.9, total: 5, summons: 0 }), 'hard-trigger');
   assert.equal(classifySuspect({ suspicion: 0.7, total: 3, summons: 2 }), 'hard-trigger');

@@ -52,6 +52,15 @@ test('jazz-gravity and pop trigger words are removed or substituted', () => {
   }
 });
 
+test('"!" exemption prefix shields a word from the filter and the sweep', () => {
+  const { text, hits } = filterBannedWords('mariachi !brass stabs over dark trap');
+  assert.equal(text, 'mariachi brass stabs over dark trap');
+  assert.equal(hits.length, 0);
+  assert.equal(containsBannedWord('mariachi !brass stabs'), false);
+  // Unexempted instances are still caught.
+  assert.equal(containsBannedWord('!brass and more brass'), true);
+});
+
 test('containsBannedWord final sweep detects leftovers', () => {
   assert.equal(containsBannedWord('gritty boom bap with cowbell'), true);
   assert.equal(containsBannedWord('gritty boom bap, halftime, swung hats'), false);

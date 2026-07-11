@@ -18,6 +18,35 @@ export function pickDescriptors(pool = [], n = 2, rng = null) {
   return shuffled.slice(0, n);
 }
 
+// Descriptor-array fields that act as sampling pools.
+const POOL_FIELDS = [
+  'arrangement',
+  'performance',
+  'percussion_physical',
+  'low_end',
+  'lead',
+  'room',
+  'feeling',
+];
+
+/**
+ * Sample a build-ready interpretation from a pooled one. Claude is asked to
+ * over-generate descriptors (5-6 per category); each build/regenerate takes
+ * a subset, so [REGENERATE] yields real variation with zero extra API calls.
+ * Without `rng` the pick is stable (first N) — the first build of a given
+ * interpretation is deterministic.
+ */
+export function sampleInterpretation(interpretation, counts = {}, rng = null) {
+  const out = { ...interpretation };
+  for (const field of POOL_FIELDS) {
+    const n = counts[field] ?? 2;
+    out[field] = pickDescriptors(interpretation[field], n, rng);
+  }
+  // Structural fields (genre/bpm/key/exclusions/instrumental) pass through
+  // untouched — variation lives in the descriptors only.
+  return out;
+}
+
 /** Midpoint BPM of a DNA range, honoring an override. */
 export function resolveBpm(dna, override) {
   if (override != null && Number.isFinite(Number(override))) return Math.round(Number(override));

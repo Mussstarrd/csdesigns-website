@@ -44,6 +44,10 @@ Schema (all fields required; arrays may be empty):
 }
 
 Rules:
+- OVER-GENERATE the descriptor arrays: provide 5-6 DISTINCT items for each of
+  arrangement, performance, percussion_physical, low_end, lead, room, and
+  feeling. The app samples 2-3 per build, so variety within a category is the
+  point — do not pad with rephrasings of the same idea.
 - Use physical-sensation language ("kick lands hard round on the one"), not
   studio jargon.
 - NEVER use these trigger words (they summon unwanted genres/stock samples):
@@ -92,7 +96,12 @@ Deno.serve(async (req) => {
   if (req.method === 'OPTIONS') return json({ ok: true });
   if (req.method !== 'POST') return json({ error: 'POST only' }, 405);
 
-  let payload: { input?: string; context?: string; deviceId?: string };
+  let payload: {
+    input?: string;
+    context?: string;
+    deviceId?: string;
+    bypassCache?: boolean;
+  };
   try {
     payload = await req.json();
   } catch {
@@ -111,12 +120,18 @@ Deno.serve(async (req) => {
   );
 
   // 1. Cache check — cached serves are free and don't touch the quota.
+  // bypassCache ("New Interpretation" button) skips the read AND the write:
+  // the variant costs one quota credit and must not clobber the canonical
+  // cached interpretation for this input.
+  const bypassCache = payload.bypassCache === true;
   const hash = await sha256(normalizeInput(input, context));
-  const { data: cached } = await supabase
-    .from('prompt_cache')
-    .select('interpretation, hit_count')
-    .eq('input_hash', hash)
-    .maybeSingle();
+  const { data: cached } = bypassCache
+    ? { data: null }
+    : await supabase
+        .from('prompt_cache')
+        .select('interpretation, hit_count')
+        .eq('input_hash', hash)
+        .maybeSingle();
   if (cached) {
     supabase
       .from('prompt_cache')
@@ -153,7 +168,7 @@ Deno.serve(async (req) => {
     },
     body: JSON.stringify({
       model: MODEL,
-      max_tokens: 1200,
+      max_tokens: 2000, // pooled arrays (5-6 items per category) need headroom
       system: SYSTEM_PROMPT,
       messages: [{ role: 'user', content: userMessage }],
     }),
@@ -186,10 +201,12 @@ Deno.serve(async (req) => {
     }
   }
 
-  // 4. Cache for everyone.
-  await supabase
-    .from('prompt_cache')
-    .upsert({ input_hash: hash, interpretation, model: MODEL });
+  // 4. Cache for everyone (variants from bypassCache are not stored).
+  if (!bypassCache) {
+    await supabase
+      .from('prompt_cache')
+      .upsert({ input_hash: hash, interpretation, model: MODEL });
+  }
 
   return json({
     interpretation,

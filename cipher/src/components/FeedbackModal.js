@@ -16,22 +16,24 @@ const RATING_OPTIONS = [
   { key: 'trash', glyph: '🗑', label: 'Trash' },
 ];
 
-export default function FeedbackModal({ visible, onClose, onSubmit }) {
+export default function FeedbackModal({ visible, onClose, onSubmit, defaultPlatform = 'suno' }) {
   const [rating, setRating] = useState(null);
   const [issues, setIssues] = useState([]);
   const [unwantedText, setUnwantedText] = useState('');
+  const [platform, setPlatform] = useState(defaultPlatform);
 
   const reset = () => {
     setRating(null);
     setIssues([]);
     setUnwantedText('');
+    setPlatform(defaultPlatform);
   };
 
   const toggleIssue = (id) =>
     setIssues((list) => (list.includes(id) ? list.filter((i) => i !== id) : [...list, id]));
 
   const submit = () => {
-    onSubmit({ rating, issues, unwantedText });
+    onSubmit({ rating, issues, unwantedText, platform });
     reset();
     onClose();
   };
@@ -48,6 +50,18 @@ export default function FeedbackModal({ visible, onClose, onSubmit }) {
             Rate the actual generation — CIPHER learns which words trigger, gate,
             or scramble the output.
           </Body>
+
+          <Label>Executed on</Label>
+          <Row style={{ marginBottom: spacing.md }}>
+            {['suno', 'mureka'].map((p) => (
+              <Chip
+                key={p}
+                label={p === 'suno' ? 'Suno v5.5' : 'Mureka V9'}
+                selected={platform === p}
+                onPress={() => setPlatform(p)}
+              />
+            ))}
+          </Row>
 
           <Row style={{ gap: spacing.sm, marginBottom: spacing.md }}>
             {RATING_OPTIONS.map((opt) => (

@@ -73,8 +73,10 @@ export function blendDna(foundation, texture, flavor = 0.3, overrides = {}, rng 
     lead: pickDescriptors(textureSafe(texture.lead_dna), texCount, rng),
     room: pickDescriptors(textureSafe(texture.room_dna), Math.max(1, texCount - 1), rng),
     feeling: pickDescriptors(textureSafe(texture.energy_dna), texCount, rng),
-    // Texture's key_emotion language may color the Foundation key.
-    key_emotion: (textureSafe(texture.energy_dna)[0] ?? '').split(',')[0] ?? '',
+    // Strict modality dominance (Gemini review): key/BPM/exclusions are
+    // Foundation-only; Texture contributes sonic descriptors exclusively,
+    // so key_emotion stays empty rather than borrowing Texture language.
+    key_emotion: '',
     instrumental: overrides.instrumental !== false,
     vocal_direction: null,
   };
