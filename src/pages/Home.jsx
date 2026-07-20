@@ -73,14 +73,6 @@ export default function Home() {
           <div className="mt-4 font-mono text-[10px] sm:text-xs tracking-[0.25em] sm:tracking-[0.3em] text-cs-blue/70">
             "DESIGNED WITH HEART // CREATED WITH SOUL"
           </div>
-          <div className="mt-10 sm:mt-12 flex flex-col sm:flex-row items-stretch sm:items-center justify-center gap-3 sm:gap-4 max-w-xs sm:max-w-none mx-auto">
-            <Link to="/portfolio" className="px-8 py-3 border border-cs-blue text-cs-blue font-mono text-xs uppercase tracking-[0.25em] hover:bg-cs-blue hover:text-cs-bg transition-all shadow-blue hover:shadow-blue-strong text-center">
-              View Portfolio
-            </Link>
-            <Link to="/contact" className="px-8 py-3 border border-cs-line text-cs-muted font-mono text-xs uppercase tracking-[0.25em] hover:border-cs-blue hover:text-cs-blue transition-all text-center">
-              Get In Touch
-            </Link>
-          </div>
         </div>
       </section>
 
