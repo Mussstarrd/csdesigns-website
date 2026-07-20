@@ -77,7 +77,7 @@ export default function Home() {
       </section>
 
       {/* HEADSHOT TICKER BAND */}
-      <section className="relative border-y border-cs-line bg-cs-panel/70 py-8 sm:py-12 md:py-14 my-6 sm:my-10 overflow-hidden">
+      <section className="relative border-y border-cs-line bg-cs-panel/70 py-4 sm:py-6 md:py-8 my-2 sm:my-4 overflow-hidden">
         <div className="flex gap-4 sm:gap-6 animate-[scroll_30s_linear_infinite]" style={{ width: "max-content" }}>
           {Array.from({ length: 20 }).map((_, i) => (
             <div
