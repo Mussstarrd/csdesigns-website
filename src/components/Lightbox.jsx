@@ -3,6 +3,7 @@ import { createPortal } from "react-dom";
 
 export default function Lightbox({ project, onClose, onPrev, onNext }) {
   useEffect(() => {
+    if (!project) return;
     const handler = (e) => {
       if (e.key === "Escape") onClose();
       if (e.key === "ArrowLeft") onPrev();
@@ -14,7 +15,7 @@ export default function Lightbox({ project, onClose, onPrev, onNext }) {
       window.removeEventListener("keydown", handler);
       document.body.style.overflow = "";
     };
-  }, [onClose, onPrev, onNext]);
+  }, [project, onClose, onPrev, onNext]);
 
   if (!project) return null;
 

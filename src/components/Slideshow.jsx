@@ -1,6 +1,16 @@
-import { useState, useEffect, useCallback } from "react";
+import { useState, useEffect, useCallback, useMemo } from "react";
 
-export default function Slideshow({ slides, interval = 5000 }) {
+function shuffle(arr) {
+  const a = [...arr];
+  for (let i = a.length - 1; i > 0; i--) {
+    const j = Math.floor(Math.random() * (i + 1));
+    [a[i], a[j]] = [a[j], a[i]];
+  }
+  return a;
+}
+
+export default function Slideshow({ slides: raw, interval = 5000, randomize = false }) {
+  const slides = useMemo(() => (randomize ? shuffle(raw) : raw), [raw, randomize]);
   const [index, setIndex] = useState(0);
   const [paused, setPaused] = useState(false);
 

@@ -6,36 +6,34 @@ const enc = (p) => encodeURI(p);
 const showcase = [
   {
     n: "01",
-    label: "Digital Art & Illustrations",
-    desc: "Original character art, illustration, and digital pieces crafted to enhance visual storytelling and captivate the audience.",
-    interval: 5000,
-    slides: [
-      { src: "/assets/cs-logo.png", contain: true },
-      { src: enc("/portfolio/Screenshot 2026-06-28 153855.png") },
-    ],
-  },
-  {
-    n: "02",
     label: "Brand Design & UI/UX",
-    desc: "Identity systems, logos, and interface mockups — every design captures the essence of the brand and elevates the user experience.",
+    desc: "Identity systems, logos, ads, and interface mockups — every design captures the essence of the brand and elevates the user experience.",
     interval: 6500,
+    randomize: true,
     slides: [
-      { src: enc("/portfolio/JanetSmith_realty/JSmithRealtyMock.png") },
-      { src: enc("/portfolio/JanetSmith_realty/JSRealtyLogo.png"), contain: true },
-      { src: enc("/portfolio/shock_baseball/ShockBaseballLogo2.png"), contain: true },
-      { src: enc("/portfolio/shock_baseball/ShockLogo1.png"), contain: true },
-      { src: enc("/portfolio/PatriotLiner/PatriotLinerAd11.png") },
-      { src: enc("/portfolio/PatriotLiner/BundleAd (1).png") },
-      { src: enc("/portfolio/PatriotLiner/PatriotLinerAd22.png") },
+      { src: enc("/portfolio/brand design/JanetSmith_realty/JSmithRealtyMock.png") },
+      { src: enc("/portfolio/brand design/JanetSmith_realty/JSRealtyLogo.png"), contain: true },
+      { src: enc("/portfolio/brand design/JanetSmith_realty/Screenshot 2025-12-26 at 11.34.27 AM.png") },
+      { src: enc("/portfolio/brand design/shock_baseball/ShockBaseballLogo2.png"), contain: true },
+      { src: enc("/portfolio/brand design/shock_baseball/ShockLogo1.png"), contain: true },
+      { src: enc("/portfolio/brand design/shock_baseball/ShockBaseballTryouts.png") },
+      { src: enc("/portfolio/brand design/PatriotLiner/BundleAd (1).png") },
+      { src: enc("/portfolio/brand design/PatriotLiner/PatriotLinerAd11.png") },
+      { src: enc("/portfolio/brand design/PatriotLiner/PatriotLinerAd22.png") },
+      { src: enc("/portfolio/brand design/PatriotLiner/PatriotLinerAd23.png") },
+      { src: enc("/portfolio/brand design/PatriotLiner/PatriotLinerAd24.jpg") },
+      { src: enc("/portfolio/brand design/PatriotLiner/PatriotLinerAd6.jpg") },
+      { src: enc("/portfolio/brand design/PatriotLiner/PatriotLiner_Ad3.jpg") },
       { src: enc("/portfolio/ARC Dog Social Media.png") },
       { src: enc("/portfolio/PINS Brochure.png") },
     ],
   },
   {
-    n: "03",
+    n: "02",
     label: "Event Flyers",
     desc: "From sneaker balls to sundress parties to community tributes — bold, scroll-stopping flyer design built around the energy of the event.",
     interval: 4500,
+    randomize: true,
     slides: [
       { src: enc("/portfolio/EventFlyers/SNKRBALL copy.png") },
       { src: enc("/portfolio/EventFlyers/sundressparty.png") },
@@ -43,12 +41,11 @@ const showcase = [
       { src: enc("/portfolio/EventFlyers/DemiRyanClassicTournament (1).jpg") },
       { src: enc("/portfolio/EventFlyers/Jaida's_BabyShowerFinish.jpg") },
       { src: enc("/portfolio/EventFlyers/PLOLHolidayAd.png") },
-      { src: enc("/portfolio/shock_baseball/ShockBaseballTryouts.png") },
       { src: enc("/portfolio/ARC Dog Poster.png") },
     ],
   },
   {
-    n: "04",
+    n: "03",
     label: "Photography",
     desc: "Portrait and lifestyle photography — visual compositions that add depth and authenticity to every project.",
     interval: 5500,
@@ -154,7 +151,7 @@ export default function Home() {
                 </Link>
               </div>
               <div className="md:col-span-7">
-                <Slideshow slides={s.slides} interval={s.interval} />
+                <Slideshow slides={s.slides} interval={s.interval} randomize={s.randomize} />
               </div>
             </div>
           ))}
