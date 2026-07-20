@@ -44,15 +44,6 @@ const showcase = [
       { src: enc("/portfolio/ARC Dog Poster.png") },
     ],
   },
-  {
-    n: "03",
-    label: "Photography",
-    desc: "Portrait and lifestyle photography — visual compositions that add depth and authenticity to every project.",
-    interval: 5500,
-    slides: [
-      { src: "/assets/headshot.png", contain: true },
-    ],
-  },
 ];
 
 export default function Home() {
