@@ -77,13 +77,13 @@ export default function Home() {
       </section>
 
       {/* HEADSHOT TICKER BAND */}
-      <section className="relative border-y border-cs-line bg-cs-panel/70 py-4 sm:py-6 overflow-hidden">
-        <div className="flex gap-3 sm:gap-4 animate-[scroll_30s_linear_infinite]" style={{ width: "max-content" }}>
+      <section className="relative border-y border-cs-line bg-cs-panel/70 py-8 sm:py-12 md:py-14 my-6 sm:my-10 overflow-hidden">
+        <div className="flex gap-4 sm:gap-6 animate-[scroll_30s_linear_infinite]" style={{ width: "max-content" }}>
           {Array.from({ length: 20 }).map((_, i) => (
             <div
               key={i}
-              className="w-20 h-20 sm:w-28 sm:h-28 md:w-32 md:h-32 rounded-full overflow-hidden flex-shrink-0"
-              style={{ boxShadow: "0 0 24px rgba(125, 211, 252, 0.45), inset 0 0 0 1px rgba(125, 211, 252, 0.3)" }}
+              className="w-28 h-28 sm:w-36 sm:h-36 md:w-44 md:h-44 rounded-full overflow-hidden flex-shrink-0"
+              style={{ boxShadow: "0 0 28px rgba(125, 211, 252, 0.5), inset 0 0 0 1px rgba(125, 211, 252, 0.35)" }}
             >
               <img src="/assets/headshot.png" alt="" className="w-full h-full object-cover scale-110" />
             </div>
