@@ -44,6 +44,12 @@ const showcase = [
       { src: enc("/portfolio/ARC Dog Poster.png") },
     ],
   },
+  {
+    n: "03",
+    label: "Photography",
+    desc: "Portrait, event, and lifestyle photography — coming soon.",
+    empty: true,
+  },
 ];
 
 export default function Home() {
@@ -95,7 +101,7 @@ export default function Home() {
       </section>
 
       {/* ABOUT */}
-      <section style={{paddingTop:"1.75rem",paddingBottom:"1.75rem",marginTop:"1.5rem",borderTop:"1px solid rgba(31,44,77,0.6)"}} className="max-w-6xl mx-auto px-5 sm:px-6">
+      <section style={{paddingTop:"4rem",paddingBottom:"4rem",marginTop:"3.5rem",borderTop:"1px solid rgba(31,44,77,0.6)"}} className="max-w-6xl mx-auto px-5 sm:px-6">
         <div className="grid grid-cols-1 md:grid-cols-2 gap-8 md:gap-12 items-start">
           <div>
             <div className="font-mono text-xs tracking-[0.4em] text-cs-blue mb-3">// 01 / ABOUT</div>
@@ -118,7 +124,7 @@ export default function Home() {
       </section>
 
       {/* PORTFOLIO SHOWCASE */}
-      <section style={{paddingTop:"1.75rem",paddingBottom:"1.75rem",marginTop:"1.5rem",borderTop:"1px solid rgba(31,44,77,0.6)"}} className="max-w-6xl mx-auto px-5 sm:px-6">
+      <section style={{paddingTop:"4rem",paddingBottom:"4rem",marginTop:"3.5rem",borderTop:"1px solid rgba(31,44,77,0.6)"}} className="max-w-6xl mx-auto px-5 sm:px-6">
         <div className="mb-10 md:mb-16">
           <div className="font-mono text-xs tracking-[0.4em] text-cs-blue mb-3">// 02 / SHOWCASE</div>
           <h2 className="font-display text-4xl md:text-5xl font-bold tracking-wider">PORTFOLIO SHOWCASE</h2>
@@ -142,7 +148,16 @@ export default function Home() {
                 </Link>
               </div>
               <div className="md:col-span-7">
-                <Slideshow slides={s.slides} interval={s.interval} randomize={s.randomize} />
+                {s.empty ? (
+                  <div className="relative border border-cs-line/60 border-dashed bg-cs-panel/50 aspect-video flex items-center justify-center">
+                    <div className="text-center">
+                      <div className="font-mono text-[10px] tracking-[0.4em] text-cs-blue/70 mb-2">// STATUS</div>
+                      <div className="font-display text-xl md:text-2xl tracking-wider text-cs-muted">COMING SOON</div>
+                    </div>
+                  </div>
+                ) : (
+                  <Slideshow slides={s.slides} interval={s.interval} randomize={s.randomize} />
+                )}
               </div>
             </div>
           ))}
@@ -150,10 +165,10 @@ export default function Home() {
       </section>
 
       {/* GET IN TOUCH */}
-      <section style={{paddingTop:"1.75rem",paddingBottom:"1.75rem",marginTop:"1.5rem",borderTop:"1px solid rgba(31,44,77,0.6)"}} className="max-w-6xl mx-auto px-5 sm:px-6">
+      <section style={{paddingTop:"4rem",paddingBottom:"4rem",marginTop:"3.5rem",borderTop:"1px solid rgba(31,44,77,0.6)"}} className="max-w-6xl mx-auto px-5 sm:px-6">
         <div className="grid grid-cols-1 md:grid-cols-2 gap-8 md:gap-12 items-start">
           <div>
-            <div className="font-mono text-xs tracking-[0.4em] text-cs-blue mb-3">// 03 / CONNECT</div>
+            <div className="font-mono text-xs tracking-[0.4em] text-cs-blue mb-3">// 04 / CONNECT</div>
             <h2 className="font-display text-4xl md:text-5xl font-black tracking-wider mb-6 glow-blue">
               GET IN TOUCH
             </h2>
