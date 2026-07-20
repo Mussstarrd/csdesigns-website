@@ -96,7 +96,7 @@ export default function Home() {
       <section style={{paddingTop:"4rem",paddingBottom:"4rem",marginTop:"3.5rem",borderTop:"1px solid rgba(31,44,77,0.6)"}} className="max-w-6xl mx-auto px-5 sm:px-6">
         <div className="grid grid-cols-1 md:grid-cols-2 gap-8 md:gap-12 items-start">
           <div>
-            <div className="font-mono text-xs tracking-[0.4em] text-cs-blue mb-3">// 01 / ABOUT</div>
+            <div className="font-mono text-xs tracking-[0.4em] text-cs-blue mb-3">// ABOUT</div>
             <h2 className="font-display text-5xl md:text-6xl font-black tracking-wider glow-blue">ABOUT</h2>
             <div className="w-20 h-px bg-cs-blue mt-6 shadow-blue" />
           </div>
@@ -118,14 +118,14 @@ export default function Home() {
       {/* PORTFOLIO SHOWCASE */}
       <section style={{paddingTop:"4rem",paddingBottom:"4rem",marginTop:"3.5rem",borderTop:"1px solid rgba(31,44,77,0.6)"}} className="max-w-6xl mx-auto px-5 sm:px-6">
         <div className="mb-10 md:mb-16">
-          <div className="font-mono text-xs tracking-[0.4em] text-cs-blue mb-3">// 02 / SHOWCASE</div>
+          <div className="font-mono text-xs tracking-[0.4em] text-cs-blue mb-3">// PORTFOLIO</div>
           <h2 className="font-display text-4xl md:text-5xl font-bold tracking-wider">PORTFOLIO SHOWCASE</h2>
           <div className="w-20 h-px bg-cs-blue mt-6 shadow-blue" />
         </div>
 
-        <div className="space-y-16 md:space-y-20">
+        <div className="divide-y divide-cs-line/40">
           {showcase.map((s, i) => (
-            <div key={s.n} className={`grid grid-cols-1 md:grid-cols-12 gap-8 items-center ${i % 2 ? "md:[&>div:first-child]:order-2" : ""}`}>
+            <div key={s.n} className={`grid grid-cols-1 md:grid-cols-12 gap-8 items-center py-14 md:py-20 first:pt-0 ${i % 2 ? "md:[&>div:first-child]:order-2" : ""}`}>
               <div className="md:col-span-5">
                 <div className="font-mono text-xs text-cs-blue tracking-widest mb-3">{s.n}</div>
                 <h3 className="font-display font-bold text-2xl md:text-3xl tracking-wide mb-4 leading-tight">
@@ -160,7 +160,7 @@ export default function Home() {
       <section style={{paddingTop:"4rem",paddingBottom:"4rem",marginTop:"3.5rem",borderTop:"1px solid rgba(31,44,77,0.6)"}} className="max-w-6xl mx-auto px-5 sm:px-6">
         <div className="grid grid-cols-1 md:grid-cols-2 gap-8 md:gap-12 items-start">
           <div>
-            <div className="font-mono text-xs tracking-[0.4em] text-cs-blue mb-3">// 04 / CONNECT</div>
+            <div className="font-mono text-xs tracking-[0.4em] text-cs-blue mb-3">// CONNECT</div>
             <h2 className="font-display text-4xl md:text-5xl font-black tracking-wider mb-6 glow-blue">
               GET IN TOUCH
             </h2>
