@@ -1,52 +1,58 @@
 import { Link } from "react-router-dom";
 import Slideshow from "../components/Slideshow.jsx";
 
+const enc = (p) => encodeURI(p);
+
 const showcase = [
   {
     n: "01",
     label: "Digital Art & Illustrations",
-    desc: "Explore our collection of digital art and illustrations, each crafted with meticulous attention to detail to enhance visual storytelling and captivate the audience.",
+    desc: "Original character art, illustration, and digital pieces crafted to enhance visual storytelling and captivate the audience.",
     interval: 5000,
     slides: [
       { src: "/assets/cs-logo.png", contain: true },
-      { src: "/portfolio/Screenshot 2026-06-28 153855.png" },
-      { src: "/portfolio/Screenshot (15).png" },
+      { src: enc("/portfolio/Screenshot 2026-06-28 153855.png") },
     ],
   },
   {
     n: "02",
     label: "Brand Design & UI/UX",
-    desc: "Dive into the world of brand design and UI/UX creations, where every design captures the essence of the brand story and elevates the user experience.",
+    desc: "Identity systems, logos, and interface mockups — every design captures the essence of the brand and elevates the user experience.",
     interval: 6500,
     slides: [
-      { src: "/portfolio/Screenshot (9).png" },
-      { src: "/portfolio/Screenshot (10).png" },
-      { src: "/portfolio/Screenshot (15).png" },
+      { src: enc("/portfolio/JanetSmith_realty/JSmithRealtyMock.png") },
+      { src: enc("/portfolio/JanetSmith_realty/JSRealtyLogo.png"), contain: true },
+      { src: enc("/portfolio/shock_baseball/ShockBaseballLogo2.png"), contain: true },
+      { src: enc("/portfolio/shock_baseball/ShockLogo1.png"), contain: true },
+      { src: enc("/portfolio/PatriotLiner/PatriotLinerAd11.png") },
+      { src: enc("/portfolio/PatriotLiner/BundleAd (1).png") },
+      { src: enc("/portfolio/PatriotLiner/PatriotLinerAd22.png") },
+      { src: enc("/portfolio/ARC Dog Social Media.png") },
+      { src: enc("/portfolio/PINS Brochure.png") },
     ],
   },
   {
     n: "03",
     label: "Event Flyers",
-    desc: "From sneaker balls to sundress parties to community events — bold, scroll-stopping flyer design built around the energy of the event.",
+    desc: "From sneaker balls to sundress parties to community tributes — bold, scroll-stopping flyer design built around the energy of the event.",
     interval: 4500,
     slides: [
-      { src: "/portfolio/sneaker-ball.png" },
-      { src: "/portfolio/sundress-party.png" },
-      { src: "/portfolio/james-franklin.png" },
-      { src: "/portfolio/demi-ryan-classic.jpg" },
-      { src: "/portfolio/jaida-baby-shower.jpg" },
+      { src: enc("/portfolio/EventFlyers/SNKRBALL copy.png") },
+      { src: enc("/portfolio/EventFlyers/sundressparty.png") },
+      { src: enc("/portfolio/EventFlyers/JamesFranklinFlyer.png") },
+      { src: enc("/portfolio/EventFlyers/DemiRyanClassicTournament (1).jpg") },
+      { src: enc("/portfolio/EventFlyers/Jaida's_BabyShowerFinish.jpg") },
+      { src: enc("/portfolio/EventFlyers/PLOLHolidayAd.png") },
+      { src: enc("/portfolio/shock_baseball/ShockBaseballTryouts.png") },
+      { src: enc("/portfolio/ARC Dog Poster.png") },
     ],
   },
   {
     n: "04",
     label: "Photography",
-    desc: "Discover our photography portfolio, showcasing intricately designed visual compositions that add depth and authenticity to every project.",
+    desc: "Portrait and lifestyle photography — visual compositions that add depth and authenticity to every project.",
     interval: 5500,
     slides: [
-      { src: "/portfolio/Screenshot (11).png" },
-      { src: "/portfolio/Screenshot (12).png" },
-      { src: "/portfolio/Screenshot (13).png" },
-      { src: "/portfolio/Screenshot (14).png" },
       { src: "/assets/headshot.png", contain: true },
     ],
   },
