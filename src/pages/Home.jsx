@@ -93,7 +93,7 @@ export default function Home() {
       </section>
 
       {/* ABOUT */}
-      <section style={{paddingTop:"4rem",paddingBottom:"4rem",marginTop:"3.5rem",borderTop:"1px solid rgba(31,44,77,0.6)"}} className="max-w-6xl mx-auto px-5 sm:px-6">
+      <section style={{paddingTop:"5rem",paddingBottom:"5rem",borderTop:"1px solid rgba(31,44,77,0.6)"}} className="max-w-6xl mx-auto px-5 sm:px-6">
         <div className="grid grid-cols-1 md:grid-cols-2 gap-8 md:gap-12 items-start">
           <div>
             <div className="font-mono text-xs tracking-[0.4em] text-cs-blue mb-3">// ABOUT</div>
@@ -116,7 +116,7 @@ export default function Home() {
       </section>
 
       {/* PORTFOLIO SHOWCASE */}
-      <section style={{paddingTop:"4rem",paddingBottom:"4rem",marginTop:"3.5rem",borderTop:"1px solid rgba(31,44,77,0.6)"}} className="max-w-6xl mx-auto px-5 sm:px-6">
+      <section style={{paddingTop:"5rem",paddingBottom:"5rem",borderTop:"1px solid rgba(31,44,77,0.6)"}} className="max-w-6xl mx-auto px-5 sm:px-6">
         <div className="mb-10 md:mb-16">
           <div className="font-mono text-xs tracking-[0.4em] text-cs-blue mb-3">// PORTFOLIO</div>
           <h2 className="font-display text-4xl md:text-5xl font-bold tracking-wider">PORTFOLIO SHOWCASE</h2>
@@ -157,7 +157,7 @@ export default function Home() {
       </section>
 
       {/* GET IN TOUCH */}
-      <section style={{paddingTop:"4rem",paddingBottom:"4rem",marginTop:"3.5rem",borderTop:"1px solid rgba(31,44,77,0.6)"}} className="max-w-6xl mx-auto px-5 sm:px-6">
+      <section style={{paddingTop:"5rem",paddingBottom:"5rem",borderTop:"1px solid rgba(31,44,77,0.6)"}} className="max-w-6xl mx-auto px-5 sm:px-6">
         <div className="grid grid-cols-1 md:grid-cols-2 gap-8 md:gap-12 items-start">
           <div>
             <div className="font-mono text-xs tracking-[0.4em] text-cs-blue mb-3">// CONNECT</div>
