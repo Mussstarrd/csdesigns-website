@@ -2,16 +2,16 @@
  * Mureka V9 formatter — separate from the Suno assembler.
  *
  * Differences enforced here:
- *  - Music Style field carries the same tag content, but BPM is converted to
- *    a FEEL DESCRIPTOR only ("sluggish halftime pace", not "140 BPM") —
- *    Mureka ignores raw numbers.
+ *  - Music Style field carries the same tag content, but BPM leads with a
+ *    FEEL DESCRIPTOR ("sluggish half-time pace") — numeric-BPM adherence on
+ *    Mureka is unverified (v2 research), so feel words are the primary lever.
  *  - Vocal Direction is its own field (null when instrumental).
  *  - A Structure Block is ALWAYS output (even instrumentals): Mureka's
  *    MusiCoT engine plans arrangement from structure tags.
  */
 
 import { filterBannedWords, scrubArtistNames } from './bannedWords.js';
-import { buildStructureBlock } from './structureTemplates.js';
+import { renderMurekaStructure } from './structureCanon.js';
 
 /**
  * Convert BPM (+ feel hint) into Mureka feel language. Deterministic table —
@@ -19,14 +19,14 @@ import { buildStructureBlock } from './structureTemplates.js';
  */
 export function bpmToFeel(bpm, bpmFeel = '') {
   const feel = String(bpmFeel ?? '').toLowerCase();
-  const halftime = feel.includes('halftime');
+  const halfTime = /half-?time/.test(feel);
   if (!bpm) return feel || 'steady mid pace';
   if (bpm < 75) return 'crawling, weighted pace';
-  if (bpm < 96) return halftime ? 'dragging halftime crawl' : 'laid-back head-nod pace';
-  if (bpm < 116) return halftime ? 'heavy halftime lean' : 'steady rolling mid pace';
-  if (bpm < 136) return halftime ? 'thick halftime bounce' : 'driving forward pace';
-  if (bpm < 156) return halftime ? 'sluggish halftime pace' : 'urgent double-time pressure';
-  return halftime ? 'frantic surface over a halftime floor' : 'frantic sprinting pace';
+  if (bpm < 96) return halfTime ? 'dragging half-time crawl' : 'laid-back head-nod pace';
+  if (bpm < 116) return halfTime ? 'heavy half-time lean' : 'steady rolling mid pace';
+  if (bpm < 136) return halfTime ? 'thick half-time bounce' : 'driving forward pace';
+  if (bpm < 156) return halfTime ? 'sluggish half-time pace' : 'urgent double-time pressure';
+  return halfTime ? 'frantic surface over a half-time floor' : 'frantic sprinting pace';
 }
 
 /**
@@ -72,7 +72,11 @@ export function assembleMureka(interpretation, options = {}) {
       ? null
       : clean(interp.vocal_direction);
 
-  const structure = buildStructureBlock(interp, energy);
+  const structure = renderMurekaStructure(interp, {
+    energy,
+    beatSwitch: options.beatSwitch === true,
+    simplify: options.simplifyStructure === true,
+  });
 
   return {
     musicStyle,

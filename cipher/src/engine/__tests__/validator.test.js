@@ -14,13 +14,14 @@ test('char counter bands: green <900, yellow 900-970, red >970', () => {
   assert.equal(charCountBand(971), 'red');
 });
 
-test('validateSuno errors on user edits that break the rules', () => {
+test('validateSuno: hard errors block, watch words only warn (v2)', () => {
   const over = validateSuno({ stylePrompt: 'x'.repeat(1001) });
   assert.equal(over.ok, false);
 
-  const banned = validateSuno({ stylePrompt: 'dark trap with cowbell' });
-  assert.equal(banned.ok, false);
-  assert.ok(banned.errors[0].includes('cowbell'));
+  // v2: cowbell is watch-tier — valid prompt, with a warning.
+  const watch = validateSuno({ stylePrompt: 'dark trap with cowbell' });
+  assert.equal(watch.ok, true);
+  assert.ok(watch.warnings.some((w) => w.includes('cowbell')));
 
   const tooMany = validateSuno({
     stylePrompt: 'dark ambient',
@@ -29,12 +30,18 @@ test('validateSuno errors on user edits that break the rules', () => {
   assert.equal(tooMany.ok, false);
 });
 
-test('validateSuno warns when instrumental tag not last', () => {
-  const result = validateSuno({
-    stylePrompt: 'instrumental, dark trap groove',
+test('validateSuno warns when instrumental missing from the front segment', () => {
+  const missing = validateSuno({
+    stylePrompt: 'dark trap groove, heavy 808s',
     instrumental: true,
   });
-  assert.ok(result.warnings.some((w) => w.includes('final tag')));
+  assert.ok(missing.warnings.some((w) => w.includes('front-loaded')));
+
+  const present = validateSuno({
+    stylePrompt: '140 BPM, dark trap, instrumental, no vocals, heavy 808s',
+    instrumental: true,
+  });
+  assert.ok(!present.warnings.some((w) => w.includes('front-loaded')));
 });
 
 test('traffic light windows over CET hours', () => {

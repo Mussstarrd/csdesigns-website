@@ -81,7 +81,7 @@ test('every seed entry assembles clean Suno + Mureka output', () => {
     const suno = assembleSuno(interp, { artistNames: names });
     assert.ok(suno.charCount > 0 && suno.charCount <= SUNO_HARD_CEILING, entry.era_label);
     assert.equal(containsBannedWord(suno.stylePrompt), false, entry.era_label);
-    assert.ok(suno.stylePrompt.endsWith('instrumental'), entry.era_label);
+    assert.ok(suno.stylePrompt.includes('instrumental, no vocals'), entry.era_label);
     // Artist names must never leak into the prompt.
     for (const name of names) {
       const escaped = name.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');

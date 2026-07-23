@@ -7,7 +7,7 @@
 const COMBOS = [
   {
     region: 'Memphis', era: 'mid-90s underground', key: 'F minor', bpm: 134,
-    genre: 'lo-fi Memphis phonk', feel: 'halftime feel',
+    genre: 'lo-fi Memphis phonk', feel: 'half-time feel',
     percussion: ['dark boxy drum hits tucked low', 'hats sizzle thin and distant'],
     lowEnd: ['distorted sub rumble, edges frayed'],
     lead: ['detuned bell melody, eerie and hollow'],
@@ -25,7 +25,7 @@ const COMBOS = [
   },
   {
     region: 'Atlanta', era: 'late-2000s trap', key: 'A minor', bpm: 140,
-    genre: 'Atlanta crunk-trap', feel: 'halftime feel',
+    genre: 'Atlanta crunk-trap', feel: 'half-time feel',
     percussion: ['low firm drum thump deep tucked', 'kick lands hard round on the one'],
     lowEnd: ['sub-bass deep fat low round clean short thumps'],
     lead: ['single dark synth lead stabs sharp blunt menacing'],
@@ -52,7 +52,7 @@ const COMBOS = [
   },
   {
     region: 'Chicago', era: 'early-2010s drill', key: 'D minor', bpm: 142,
-    genre: 'Chicago drill', feel: 'halftime feel',
+    genre: 'Chicago drill', feel: 'half-time feel',
     percussion: ['machine-gun hat rolls burst and stop', 'kick pattern stutters heavy'],
     lowEnd: ['sliding 808 growls between hits'],
     lead: ['icy music-box melody repeats unbothered'],
@@ -61,7 +61,7 @@ const COMBOS = [
   },
   {
     region: 'New York', era: '2016 Brooklyn drill lineage', key: 'B minor', bpm: 145,
-    genre: 'Brooklyn drill', feel: 'halftime feel',
+    genre: 'Brooklyn drill', feel: 'half-time feel',
     percussion: ['skippy displaced kick pattern jumps the grid'],
     lowEnd: ['808 slides long and seasick'],
     lead: ['sparse gliding strings, cold and cinematic'],

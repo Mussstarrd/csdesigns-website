@@ -4,73 +4,68 @@ import {
   filterBannedWords,
   scrubArtistNames,
   containsBannedWord,
+  analyzeWatchWords,
+  detectAttractors,
+  setDynamicRules,
 } from '../bannedWords.js';
 
-test('strips stock-sample summons', () => {
-  const { text, hits } = filterBannedWords('heavy kick, cowbell accents, rim shot on the four');
-  assert.ok(!/cowbell/i.test(text));
-  assert.ok(!/rim/i.test(text));
-  assert.ok(hits.length >= 2);
-});
-
-test('substitutes approved equivalents: 3/4, warm, half-time feel', () => {
-  assert.equal(filterBannedWords('3/4').text, 'grouped in threes');
-  assert.equal(filterBannedWords('warm').text, 'velvet on skin');
-  assert.equal(filterBannedWords('half-time feel').text, 'halftime');
-  assert.equal(filterBannedWords('half time feel').text, 'halftime');
-});
-
-test('never touches the approved word "halftime"', () => {
-  const { text, hits } = filterBannedWords('140 BPM halftime feel, dark trap');
-  assert.equal(text, '140 BPM halftime feel, dark trap');
+test('v2: groove vocabulary is NEVER stripped — swing, shuffle, half-time', () => {
+  const input = '140 BPM, half-time feel, laid-back swing rhythm, ghost-note shuffle feel';
+  const { text, hits } = filterBannedWords(input);
+  assert.equal(text, input);
   assert.equal(hits.length, 0);
+  assert.equal(containsBannedWord(input), false);
 });
 
-test('"g-funk" compound survives while bare "funk" is substituted', () => {
-  assert.equal(filterBannedWords('west coast g-funk bounce').text, 'west coast g-funk bounce');
-  assert.equal(filterBannedWords('pure funk').text, 'pure greasy pocket groove');
-});
-
-test('"swung" survives while "swing" is substituted', () => {
-  assert.equal(filterBannedWords('swung triplet cadence').text, 'swung triplet cadence');
-  assert.ok(!/\bswing\b/i.test(filterBannedWords('light swing groove').text));
-});
-
-test('numbers in text do not corrupt the shield/restore cycle', () => {
-  const input = '140 BPM halftime feel, 808 slides, 90s texture';
+test('v2: former kill-list folklore is not stripped either', () => {
+  const input = 'warm soulful keys, cowbell accent, epic strings';
   const { text } = filterBannedWords(input);
-  assert.ok(text.includes('140 BPM'));
-  assert.ok(text.includes('808'));
-  assert.ok(text.includes('halftime'));
+  assert.equal(text, input); // untouched — hard tier is dynamic-rules only
 });
 
-test('jazz-gravity and pop trigger words are removed or substituted', () => {
-  const dirty = 'warm soulful waltz, glossy radio-ready hooks, epic chiptune energy';
-  const { text } = filterBannedWords(dirty);
-  for (const banned of ['waltz', 'glossy', 'radio-ready', 'epic', 'chiptune', 'soulful']) {
-    assert.ok(!text.toLowerCase().includes(banned), `should not contain ${banned}`);
-  }
+test('watch tier warns without touching text', () => {
+  const warnings = analyzeWatchWords('warm soulful pad with a cowbell accent');
+  const labels = warnings.map((w) => w.label);
+  assert.ok(labels.includes('warm'));
+  assert.ok(labels.includes('soulful'));
+  assert.ok(labels.includes('cowbell'));
+  assert.ok(warnings.every((w) => w.tier === 'watch'));
 });
 
-test('"!" exemption prefix shields a word from the filter and the sweep', () => {
-  const { text, hits } = filterBannedWords('mariachi !brass stabs over dark trap');
-  assert.equal(text, 'mariachi brass stabs over dark trap');
-  assert.equal(hits.length, 0);
-  assert.equal(containsBannedWord('mariachi !brass stabs'), false);
-  // Unexempted instances are still caught.
-  assert.equal(containsBannedWord('!brass and more brass'), true);
+test('"!" exemption suppresses watch warnings', () => {
+  assert.equal(analyzeWatchWords('!warm keys').length, 0);
+  assert.ok(analyzeWatchWords('warm keys').length > 0);
 });
 
-test('containsBannedWord final sweep detects leftovers', () => {
-  assert.equal(containsBannedWord('gritty boom bap with cowbell'), true);
-  assert.equal(containsBannedWord('gritty boom bap, halftime, swung hats'), false);
+test('attractors warn contextually on genre core', () => {
+  // Violin in a trap build → orchestral pull warning.
+  const inTrap = detectAttractors('dark trap with violin line', 'dark Atlanta trap');
+  assert.ok(inTrap.some((w) => w.label.includes('violin')));
+  // Strings in a chipmunk-soul build → at home, no warning.
+  const atHome = detectAttractors('string section swells', 'chipmunk soul east coast');
+  assert.equal(atHome.filter((w) => w.label.includes('violin')).length, 0);
 });
 
-test('scrubArtistNames removes decoder names case-insensitively', () => {
-  const { text, hits } = scrubArtistNames('sounds like Metro Boomin on a dark night', [
-    'Metro Boomin',
-    'Jadakiss',
-  ]);
+test('bare "epic" warns outside cinematic builds', () => {
+  const warnings = detectAttractors('epic bells', 'gritty boom bap');
+  assert.ok(warnings.some((w) => w.attracts.includes('trailer')));
+  const cinematic = detectAttractors('epic bells', 'cinematic dark trap');
+  assert.equal(cinematic.filter((w) => w.attracts.includes('trailer')).length, 0);
+});
+
+test('dynamic (server-confirmed) rules are the hard tier and still strip', () => {
+  setDynamicRules([{ word: 'velvet', substitute: 'soft-touch' }, { word: 'music box' }]);
+  assert.equal(containsBannedWord('velvet texture'), true);
+  assert.equal(filterBannedWords('velvet texture').text, 'soft-touch texture');
+  assert.equal(filterBannedWords('eerie music box chime').text, 'eerie chime');
+  // "!" exemption beats even confirmed rules (explicit user intent).
+  assert.equal(filterBannedWords('!velvet texture').text, 'velvet texture');
+  setDynamicRules([]);
+  assert.equal(containsBannedWord('velvet texture'), false);
+});
+
+test('artist names still scrub — product policy, not folklore', () => {
+  const { text, hits } = scrubArtistNames('like Metro Boomin at night', ['Metro Boomin']);
   assert.ok(!/metro boomin/i.test(text));
   assert.equal(hits.length, 1);
 });

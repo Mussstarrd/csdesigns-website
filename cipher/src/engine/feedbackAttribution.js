@@ -23,11 +23,13 @@ export const RATINGS = ['fire', 'ok', 'trash'];
 
 export const ISSUE_TAGS = [
   { id: 'unwanted_element', label: 'Unwanted instrument/sound appeared' },
+  { id: 'unwanted_fills', label: 'Unwanted fills/rolls injected' },
   { id: 'genre_drift', label: 'Pulled toward the wrong genre' },
   { id: 'muddy_mix', label: 'Muddy low end / weak dynamics' },
   { id: 'ignored_exclusion', label: 'Ignored an exclusion' },
   { id: 'vocal_leak', label: 'Vocals on an instrumental' },
   { id: 'structure_ignored', label: 'Ignored the structure block' },
+  { id: 'stock_kit', label: 'Stock/preset drum kit sound' },
   { id: 'too_generic', label: 'Generic / ignored the descriptors' },
 ];
 

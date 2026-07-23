@@ -66,6 +66,41 @@ export function formatExclusions(rawItems = []) {
 }
 
 /**
+ * Negative-to-positive inversion (A3, Gemini): exclusion fields are soft
+ * guidance and leak when the positive prompt implies the excluded element.
+ * The reliable counter is crowding the latent space with a COMPETING
+ * positive element. Each entry maps an excluded element to the injection
+ * that occupies its space.
+ */
+const INVERSION_TABLE = [
+  { match: /sax|horn|brass|trumpet/, inject: 'hard synth lead front and center carrying the top line' },
+  { match: /guitar/, inject: 'piano-led harmony holding the mids' },
+  { match: /piano|keys/, inject: 'synth pad bed carrying the harmony' },
+  { match: /vocal|singing|voice/, inject: 'purely instrumental focus, lead melody carried by the main synth' },
+  { match: /cowbell|woodblock|percussion|fills|rolls/, inject: 'kick, snare and hats only — the full percussion palette' },
+  { match: /string|violin|orchestra/, inject: 'dark synth pad bed instead of any orchestral layer' },
+  { match: /808|sub/, inject: 'clean electric bassline holding the low end' },
+  { match: /choir/, inject: 'single dry lead voice of a synth, no vocal stacks' },
+  { match: /hats|hi-hat/, inject: 'shaker pulse carrying the top-end rhythm' },
+];
+
+/**
+ * For each exclusion item, return the competing positive descriptor to
+ * inject into the style field (or nothing if no mapping exists).
+ * Capped by the caller to protect the character budget.
+ */
+export function invertExclusions(items = [], cap = 2) {
+  const injections = [];
+  for (const item of items) {
+    const el = normalizeExclusion(item);
+    const entry = INVERSION_TABLE.find((e) => e.match.test(el));
+    if (entry && !injections.includes(entry.inject)) injections.push(entry.inject);
+    if (injections.length >= cap) break;
+  }
+  return injections;
+}
+
+/**
  * Detect conflicts between the positive prompt content and exclusion items.
  * Returns [{ exclusion, positive, message }] for the warning UI.
  */

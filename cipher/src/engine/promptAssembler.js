@@ -1,48 +1,49 @@
 /**
  * Stage 2 — Assembly. Local, deterministic, never the LLM.
  *
- * Builds the final Suno strings from a validated interpretation object.
- *
- * Suno Style Prompt assembly order (Prompt Stack — locked):
- *   [BPM + feel] [key + emotion] [genre_core]
- *   → Arrangement → Performance
- *   → Percussion / Low-end / Lead (physical language)
- *   → Room → Feeling
- *   → [instrumental tag LAST if true]
- *
- * Hard rules enforced here in code:
- *   1. 990-char hard ceiling (10-char safety margin under Suno's 1,000).
- *      Truncation drops trailing feeling descriptors first and never touches
- *      the front-loaded BPM/key/genre segment.
- *   2. "instrumental" (when true) is appended at the very END — v5.5 rule.
- *   3. Exclusions go to the SEPARATE Exclude field (≤5, `no x, no y`).
- *   4. Banned trigger words are stripped/substituted; warnings logged.
- *   5. Artist/celebrity names are scrubbed against the Decoder name list.
+ * v2 policy (docs/V2_SPEC.md):
+ *  - Per-build-type character budgets (D3): pocket ~350 · standard ~600 ·
+ *    displacement ~990. The 990 hard ceiling (10 under Suno's 1,000) is
+ *    absolute regardless of budget.
+ *  - Front-loading is global: [BPM + feel] [key + emotion] [genre_core]
+ *    [instrumental, no vocals — EARLY, research-corrected from v1's
+ *    final-position folklore] → arrangement → performance (groove slot
+ *    lives at its head) → percussion/low-end/lead → room → feeling.
+ *  - Truncation drops trailing descriptors first (feeling → room → …) and
+ *    never touches the front-loaded segment.
+ *  - HARD-tier word rules (server-confirmed dynamic rules) strip; WATCH and
+ *    ATTRACTOR tiers warn without touching text (D1).
+ *  - Artist names always scrub (product policy).
+ *  - Exclusions go to the SEPARATE Exclude field (≤5) with inversion
+ *    injections available via exclusions.js (A3).
  */
 
-import { filterBannedWords, scrubArtistNames, containsBannedWord } from './bannedWords.js';
+import {
+  filterBannedWords,
+  scrubArtistNames,
+  containsBannedWord,
+  analyzeWatchWords,
+  detectAttractors,
+} from './bannedWords.js';
 import { formatExclusions, detectExclusionConflicts } from './exclusions.js';
 
 export const SUNO_CHAR_LIMIT = 1000;
 export const SUNO_HARD_CEILING = 990; // 10-char safety margin
-export const INSTRUMENTAL_TAG = 'instrumental';
+export const INSTRUMENTAL_TAG = 'instrumental, no vocals';
 
-/** Run banned-word + artist-name filters over one descriptor string. */
+/** Hard-filter + artist-name scrub for one descriptor string. */
 function cleanDescriptor(text, artistNames, warnings) {
   const banned = filterBannedWords(text);
-  banned.hits.forEach((h) =>
-    warnings.push({ type: 'banned-word', ...h, source: text })
-  );
+  banned.hits.forEach((h) => warnings.push({ type: 'hard-rule', ...h, source: text }));
   const scrubbed = scrubArtistNames(banned.text, artistNames);
-  scrubbed.hits.forEach((h) =>
-    warnings.push({ type: 'artist-name', ...h, source: text })
-  );
+  scrubbed.hits.forEach((h) => warnings.push({ type: 'artist-name', ...h, source: text }));
   return scrubbed.text;
 }
 
 /**
- * Build the front-loaded opening segment: "[BPM + feel] [key + emotion] [genre]".
- * This segment is NEVER truncated.
+ * Front-loaded opening: "[BPM + feel] [key + emotion] [genre] [instrumental]".
+ * Never truncated. Instrumental sits EARLY — the toggle is the real control
+ * on Suno; early style-text placement is the community-supported backup.
  */
 function buildFrontMatter(interp, artistNames, warnings) {
   const parts = [];
@@ -57,6 +58,7 @@ function buildFrontMatter(interp, artistNames, warnings) {
     parts.push(interp.key_emotion);
   }
   if (interp.genre_core) parts.push(interp.genre_core);
+  if (interp.instrumental === true) parts.push(INSTRUMENTAL_TAG);
   return parts
     .map((p) => cleanDescriptor(p, artistNames, warnings))
     .filter(Boolean)
@@ -65,24 +67,16 @@ function buildFrontMatter(interp, artistNames, warnings) {
 
 /**
  * Assemble the Suno Style Prompt + Exclude field.
- *
- * Returns {
- *   stylePrompt, excludeField,
- *   charCount, excludeCharCount,
- *   truncated: [dropped descriptors],
- *   warnings: [{type, label, action, source}],
- *   conflicts: [{exclusion, positive, message}],
- * }
+ * options: { artistNames?: string[], budget?: number }
  */
 export function assembleSuno(interpretation, options = {}) {
   const interp = interpretation ?? {};
   const artistNames = options.artistNames ?? [];
+  const budget = Math.min(options.budget ?? SUNO_HARD_CEILING, SUNO_HARD_CEILING);
   const warnings = [];
 
   const frontMatter = buildFrontMatter(interp, artistNames, warnings);
 
-  // Ordered descriptor list per the locked Prompt Stack. Each entry keeps its
-  // section so truncation can prefer dropping trailing "feeling" items first.
   const sections = [
     ['arrangement', interp.arrangement],
     ['performance', interp.performance],
@@ -101,45 +95,35 @@ export function assembleSuno(interpretation, options = {}) {
     }
   }
 
-  const instrumental = interp.instrumental === true;
-  const tail = instrumental ? INSTRUMENTAL_TAG : '';
-
   const join = (list) =>
-    [frontMatter, ...list.map((d) => d.text), ...(tail ? [tail] : [])]
-      .filter(Boolean)
-      .join(', ');
+    [frontMatter, ...list.map((d) => d.text)].filter(Boolean).join(', ');
 
-  // --- Rule 1: 990-char ceiling, back-first truncation. ---
-  // Drop whole descriptors from the tail of the stack (feeling sits last, so
-  // it goes first) until the assembled string fits. Front matter and the
-  // instrumental tag are never dropped.
+  // Budgeted truncation — trailing descriptors drop first, front never does.
   const truncated = [];
   let stylePrompt = join(descriptors);
-  while (stylePrompt.length > SUNO_HARD_CEILING && descriptors.length > 0) {
+  while (stylePrompt.length > budget && descriptors.length > 0) {
     const dropped = descriptors.pop();
     truncated.push(dropped.text);
     stylePrompt = join(descriptors);
   }
-  // Pathological fallback: front matter alone exceeds the ceiling.
   if (stylePrompt.length > SUNO_HARD_CEILING) {
     stylePrompt = stylePrompt.slice(0, SUNO_HARD_CEILING).replace(/[,\s]+$/, '');
-    warnings.push({
-      type: 'hard-truncate',
-      label: 'front matter exceeded ceiling',
-      action: 'hard-truncated',
-    });
+    warnings.push({ type: 'hard-truncate', label: 'front matter exceeded ceiling', action: 'hard-truncated' });
   }
 
-  // --- Rule 4 final sweep: assembled string must be clean. ---
+  // Final HARD sweep (dynamic rules can appear via substitution chains).
   if (containsBannedWord(stylePrompt)) {
     const swept = filterBannedWords(stylePrompt);
-    swept.hits.forEach((h) =>
-      warnings.push({ type: 'banned-word-final-sweep', ...h })
-    );
+    swept.hits.forEach((h) => warnings.push({ type: 'hard-rule-final-sweep', ...h }));
     stylePrompt = swept.text;
   }
 
-  // --- Rule 3: exclusions live in their own field, never the style prompt. ---
+  // WATCH + ATTRACTOR tiers: warn on the final string, never modify it.
+  for (const w of analyzeWatchWords(stylePrompt)) warnings.push({ type: 'watch', ...w });
+  for (const w of detectAttractors(stylePrompt, interp.genre_core)) {
+    warnings.push({ type: 'attractor', ...w });
+  }
+
   const exclusions = formatExclusions(interp.exclusions);
   exclusions.dropped.forEach((el) =>
     warnings.push({ type: 'exclusion-cap', label: el, action: 'dropped (cap 5)' })
@@ -152,16 +136,16 @@ export function assembleSuno(interpretation, options = {}) {
     exclusionItems: exclusions.items,
     charCount: stylePrompt.length,
     excludeCharCount: exclusions.text.length,
+    budget,
     truncated,
     warnings,
     conflicts,
-    instrumental,
+    instrumental: interp.instrumental === true,
   };
 }
 
 /**
- * Re-roll descriptor picks for [REGENERATE] on deterministic paths: given the
- * DNA pools a chip selection produced, pick a different subset/order.
+ * Re-roll descriptor picks for [REGENERATE] on deterministic paths.
  * `rng` defaults to Math.random but is injectable for tests.
  */
 export function rerollDescriptors(pool = [], count = 2, rng = Math.random) {

@@ -113,8 +113,8 @@ test('dynamic rules extend the kill list at runtime and are removable', () => {
   assert.equal(containsBannedWord('velvet texture'), true);
   assert.equal(filterBannedWords('velvet texture').text, 'soft-touch texture');
   assert.equal(filterBannedWords('eerie music box chime').text, 'eerie chime');
-  // Static rules still work alongside.
-  assert.equal(containsBannedWord('cowbell'), true);
+  // v2: no static hard rules — folklore words are watch-tier, not banned.
+  assert.equal(containsBannedWord('cowbell'), false);
   // Reset — later tests must not see dynamic rules.
   setDynamicRules([]);
   assert.equal(containsBannedWord('velvet texture'), false);

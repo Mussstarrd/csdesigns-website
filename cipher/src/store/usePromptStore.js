@@ -4,6 +4,8 @@ import { buildFromChips } from '../engine/chipBuilder.js';
 import { blendDna } from '../engine/blend.js';
 import { sampleInterpretation } from '../engine/dna.js';
 import { surpriseMe } from '../engine/surpriseMe.js';
+import { applyDelta } from '../engine/deltaLoop.js';
+import { useFeedbackStore } from './useFeedbackStore.js';
 import { validateInterpretation } from '../engine/interpretationSchema.js';
 import { validateSuno, validateMureka } from '../engine/validator.js';
 import { useDecoderStore } from './useDecoderStore.js';
@@ -16,37 +18,82 @@ import { useDecoderStore } from './useDecoderStore.js';
  * brand-new description needs Claude again).
  */
 export const usePromptStore = create((set, get) => ({
-  source: null, // {type: 'describe'|'build'|'blend'|'surprise', ...payload}
+  source: null, // {type: 'describe'|'build'|'blend'|'surprise'|'recipe', ...payload}
   platform: 'both',
   energy: 3,
   seedAudio: { enabled: false, contains: [] },
+  groove: null, // {style: 'pocket'|'displaced'|'forward', density}
+  beatSwitch: false,
   interpretation: null,
   result: null, // buildPrompt() output
+  deltaNotes: [], // last FIX & REBUILD explanation
   regenCount: 0,
 
   setPlatform: (platform) => set({ platform }),
 
   /** Assemble (or re-assemble) from an interpretation. */
-  runBuild: ({ source, interpretation, energy = 3, seedAudio, platform }) => {
+  runBuild: ({ source, interpretation, energy = 3, seedAudio, platform, groove, beatSwitch }) => {
     const artistNames = useDecoderStore.getState().artistNames();
     const { interpretation: clean } = validateInterpretation(interpretation);
     // Describe It interpretations arrive as POOLS (Claude over-generates
     // 5-6 descriptors per category); each build assembles from a sample so
     // [REGENERATE] has real variation without another API call.
     const built = source?.type === 'describe' ? sampleInterpretation(clean) : clean;
-    const result = buildPrompt(built, {
+    const options = {
       artistNames,
       energy,
       seedAudio: seedAudio ?? get().seedAudio,
-    });
+      groove: groove ?? null,
+      beatSwitch: beatSwitch === true,
+    };
+    const result = buildPrompt(built, options);
     set({
       source,
       interpretation: clean,
       result,
       energy,
       seedAudio: seedAudio ?? get().seedAudio,
+      groove: groove ?? null,
+      beatSwitch: beatSwitch === true,
       platform: platform ?? get().platform,
+      deltaNotes: [],
       regenCount: 0,
+    });
+    return result;
+  },
+
+  /**
+   * Regeneration-delta loop (A2): deterministic corrective rebuild from a
+   * failure report. No LLM call. Uses local attribution suspects to target
+   * descriptor drops.
+   */
+  fixFromFeedback: (feedback) => {
+    const { interpretation, energy, seedAudio, groove, beatSwitch } = get();
+    if (!interpretation) return null;
+    const suspects = useFeedbackStore
+      .getState()
+      .suspects()
+      .filter((s) => s.verdict === 'hard-trigger')
+      .map((s) => s.term);
+    const delta = applyDelta(interpretation, feedback, { suspectTerms: suspects });
+    const artistNames = useDecoderStore.getState().artistNames();
+    const nextGroove = delta.policy.grooveStyle
+      ? { style: delta.policy.grooveStyle, density: delta.policy.density ?? groove?.density ?? 2 }
+      : groove;
+    const result = buildPrompt(delta.interpretation, {
+      artistNames,
+      energy,
+      seedAudio,
+      groove: nextGroove,
+      beatSwitch,
+      simplifyStructure: delta.policy.simplifyStructure === true,
+    });
+    set({
+      interpretation: delta.interpretation,
+      groove: nextGroove,
+      result,
+      deltaNotes: delta.notes,
+      regenCount: get().regenCount + 1,
     });
     return result;
   },
@@ -61,6 +108,7 @@ export const usePromptStore = create((set, get) => ({
     const { source, energy, seedAudio, interpretation } = get();
     if (!source || (source.type === 'saved' && !interpretation)) return null;
     const rng = Math.random;
+    const { groove, beatSwitch } = get();
     let pool = interpretation; // what we keep in state
     let built; // what we assemble this roll
     if (source.type === 'build') {
@@ -72,13 +120,13 @@ export const usePromptStore = create((set, get) => ({
     } else if (source.type === 'surprise') {
       pool = built = surpriseMe(rng);
     } else {
-      // describe: re-sample from the pooled interpretation — the pool itself
-      // stays in state so every regenerate draws from the same LLM call.
+      // describe/recipe: re-sample from the pooled interpretation — the pool
+      // stays in state so every regenerate draws from the same source.
       built = sampleInterpretation(pool, {}, rng);
     }
     const artistNames = useDecoderStore.getState().artistNames();
-    const result = buildPrompt(built, { artistNames, energy, seedAudio });
-    set({ interpretation: pool, result, regenCount: get().regenCount + 1 });
+    const result = buildPrompt(built, { artistNames, energy, seedAudio, groove, beatSwitch, rng });
+    set({ interpretation: pool, result, deltaNotes: [], regenCount: get().regenCount + 1 });
     return result;
   },
 

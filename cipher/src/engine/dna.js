@@ -68,7 +68,7 @@ export function dnaToInterpretation(dna, overrides = {}, rng = null) {
     ...emptyInterpretation(),
     genre_core: dna.feel ? `${dna.region ?? ''} ${dna.feel}`.trim() : dna.region ?? '',
     bpm: resolveBpm(dna, overrides.bpm),
-    bpm_feel: (dna.bpm_min ?? 0) >= 130 ? 'halftime feel' : '',
+    bpm_feel: (dna.bpm_min ?? 0) >= 130 ? 'half-time feel' : '',
     key: overrides.key ?? dna.key_preference ?? '',
     key_emotion: '',
     arrangement: pickDescriptors(dna.arrangement_dna, density, rng),

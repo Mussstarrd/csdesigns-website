@@ -22,11 +22,11 @@ const interp = {
   vocal_direction: null,
 };
 
-test('BPM converts to feel descriptor only — no raw numbers in Mureka style', () => {
-  assert.equal(bpmToFeel(140, 'halftime feel'), 'sluggish halftime pace');
+test('BPM converts to feel descriptor — feel words lead on Mureka', () => {
+  assert.equal(bpmToFeel(140, 'half-time feel'), 'sluggish half-time pace');
   const result = assembleMureka(interp);
   assert.ok(!/\b140\b/.test(result.musicStyle), 'raw BPM leaked');
-  assert.ok(result.musicStyle.includes('sluggish halftime pace'));
+  assert.ok(result.musicStyle.includes('sluggish half-time pace'));
   assert.equal(validateMureka(result).ok, true);
 });
 
@@ -60,6 +60,8 @@ test('structure template picked by genre + energy', () => {
   assert.equal(unknown.templateId, 'default');
 });
 
-test('validateMureka flags raw BPM numbers', () => {
-  assert.equal(validateMureka({ musicStyle: 'dark trap at 140 BPM' }).ok, false);
+test('validateMureka advises (not blocks) on raw BPM — adherence unverified', () => {
+  const result = validateMureka({ musicStyle: 'dark trap at 140 BPM' });
+  assert.equal(result.ok, true);
+  assert.ok(result.warnings.some((w) => w.includes('unverified')));
 });

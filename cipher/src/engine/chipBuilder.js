@@ -31,7 +31,7 @@ export function buildFromChips(
         overrides.bpm ??
         interp.bpm ??
         Math.round((regionChip.bpm_min + regionChip.bpm_max) / 2),
-      bpm_feel: interp.bpm_feel || (regionChip.bpm_min >= 130 ? 'halftime feel' : ''),
+      bpm_feel: interp.bpm_feel || (regionChip.bpm_min >= 130 ? 'half-time feel' : ''),
       key: overrides.key ?? interp.key ?? regionChip.key_preference,
       percussion_physical: interp.percussion_physical.length
         ? interp.percussion_physical

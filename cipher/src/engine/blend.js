@@ -63,7 +63,7 @@ export function blendDna(foundation, texture, flavor = 0.3, overrides = {}, rng 
     ].join(' '),
     // Structural: all from Foundation. Flavor never touches these.
     bpm: resolveBpm(foundation, overrides.bpm),
-    bpm_feel: (foundation.bpm_min ?? 0) >= 130 ? 'halftime feel' : '',
+    bpm_feel: (foundation.bpm_min ?? 0) >= 130 ? 'half-time feel' : '',
     key: overrides.key ?? foundation.key_preference ?? '',
     percussion_physical: pickDescriptors(foundation.percussion_dna, density, rng),
     low_end: pickDescriptors(foundation.low_end_dna, density, rng),

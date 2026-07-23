@@ -1,96 +1,67 @@
 /**
- * The permanent kill list — banned trigger words that summon unwanted genres,
- * stock samples, or platform pathologies on Suno v5.5 / Mureka V9.
+ * Ruleset v2 — evidence-tiered word rules. (D1/A1 of docs/V2_SPEC.md)
  *
- * These rules are CODE-ENFORCED. Claude's JSON output is never trusted to be
- * clean: the assembler runs this filter on every descriptor and again on the
- * final assembled string (Stage 3 sweep).
+ * v1 shipped a large hard kill list that silently stripped words. The July
+ * 2026 research round showed most of it was folklore — and some of it
+ * (swing, shuffle, half-time) was actively destroying groove language. v2:
  *
- * Matching is case-insensitive on word boundaries. Entries marked "bare" in
- * the spec (brass, horn, funk, New Orleans…) are banned as standalone tokens
- * AND inside compounds in v1 — the review's stance is that these words leak
- * stock samples regardless of qualifier, so we err on the side of stripping.
+ *   HARD tier    — verified-destructive rules only. Today that is: artist
+ *                  names (product policy) and server-confirmed dynamic rules
+ *                  from the Learning System. These are still stripped.
+ *   WATCH tier   — the former kill list, demoted. Warn-only, never stripped.
+ *                  Silent stripping is how v1 folklore calcified; warnings
+ *                  generate telemetry the Learning System can adjudicate.
+ *   ATTRACTORS   — the verified mechanism: genre-defining instruments and
+ *                  bare superlatives drag their whole genre in with them.
+ *                  Contextual warnings when the pull conflicts with the
+ *                  build's genre core.
+ *
+ * The `!` exemption prefix suppresses both tiers for a word ("!brass").
  */
 
-// Each entry: { pattern: RegExp, label: string, substitute?: string }
-// Order matters: multi-word patterns run before single-word ones so
-// "half-time feel" is substituted as a unit before "feel" could be touched.
-const RULES = [
-  // --- Known traps (multi-word first) ---
-  { label: 'half-time feel', pattern: /\bhalf[\s-]?time(\s+feel)?\b/gi, substitute: 'halftime' },
-  { label: 'New Orleans', pattern: /\bnew\s+orleans\b/gi, substitute: 'southern bounce lineage' },
-  { label: 'jungle drum', pattern: /\bjungle\s+drums?\b/gi },
-  { label: 'natural decay', pattern: /\bnatural\s+decay\b/gi, substitute: 'tails cut short' },
-  { label: 'round midrange tone', pattern: /\bround\s+midrange\s+tone\b/gi },
-  { label: 'rim shot', pattern: /\brim\s?shots?\b/gi },
-  { label: 'boss battle', pattern: /\bboss\s+battles?\b/gi },
-  { label: 'orchestral pop', pattern: /\borchestral\s+pop\b/gi },
-  { label: 'high energy synth', pattern: /\bhigh[\s-]?energy\s+synths?\b/gi, substitute: 'hard-driving synth' },
-  { label: 'radio-ready', pattern: /\bradio[\s-]?ready\b/gi },
-  { label: 'chart-topping', pattern: /\bchart[\s-]?topping\b/gi },
-
-  // --- Stock-sample summons ---
-  { label: 'cowbell', pattern: /\bcowbells?\b/gi },
-  { label: 'woodblock', pattern: /\bwood\s?blocks?\b/gi },
-  { label: 'reed', pattern: /\breeds?\b/gi },
-  { label: 'brass', pattern: /\bbrass\b/gi },
-  { label: 'horn', pattern: /\bhorns?\b/gi },
-  { label: 'tick', pattern: /\bticks?\b/gi },
-  { label: 'click', pattern: /\bclicks?\b/gi },
-  { label: 'knock', pattern: /\bknocks?\b/gi, substitute: 'hits with body weight' },
-  { label: 'tap', pattern: /\btaps?\b/gi },
-  { label: 'stick', pattern: /\bsticks?\b/gi },
-  { label: 'block', pattern: /\bblocks?\b/gi },
-  { label: 'clave', pattern: /\bclaves?\b/gi },
-  { label: 'rim', pattern: /\brims?\b/gi },
-
-  // --- Jazz gravity ---
-  { label: 'waltz', pattern: /\bwaltz(es)?\b/gi },
-  { label: '3/4', pattern: /\b3\s*\/\s*4\b/g, substitute: 'grouped in threes' },
-  { label: 'warm', pattern: /\bwarm(th|er)?\b/gi, substitute: 'velvet on skin' },
-  { label: 'syrupy', pattern: /\bsyrupy\b/gi, substitute: 'slow-dripping thick' },
-  { label: 'airy', pattern: /\bairy\b/gi, substitute: 'wide open space around it' },
-  { label: 'soulful', pattern: /\bsoulful\b/gi, substitute: 'deep-rooted' },
-  { label: 'breathes', pattern: /\bbreathes?\b/gi, substitute: 'leaves space between phrases' },
-  { label: 'swing', pattern: /\bswings?(ing)?\b/gi, substitute: 'swung' },
-  { label: 'shuffling', pattern: /\bshuffl(e|es|ing)\b/gi },
-  { label: 'hypnotic', pattern: /\bhypnotic\b/gi, substitute: 'locked in a trance-tight cycle' },
-  { label: 'looping', pattern: /\blooping\b/gi, substitute: 'cycled' },
-
-  // --- Video game / anime ---
-  { label: 'epic', pattern: /\bepic\b/gi },
-  { label: 'chiptune', pattern: /\bchiptunes?\b/gi },
-
-  // --- Over-compressed pop ---
-  { label: 'modern', pattern: /\bmodern\b/gi, substitute: 'current-era' },
-  { label: 'glossy', pattern: /\bglossy\b/gi },
-  { label: 'commercial', pattern: /\bcommercial\b/gi },
-
-  // --- Gospel / country pulls ---
-  { label: 'twang', pattern: /\btwangy?\b/gi },
-  { label: 'uplifting', pattern: /\buplifting\b/gi },
-  { label: 'roots', pattern: /\broots\b/gi },
-
-  // --- Other known traps (single words) ---
-  { label: 'funk', pattern: /\bfunky?\b/gi, substitute: 'greasy pocket groove' },
-  { label: 'wah', pattern: /\bwah(-wah)?\b/gi },
+// ---------------------------------------------------------------------------
+// WATCH tier — warn, never strip. Former v1 kill list, demoted to hypotheses.
+// `note` explains the suspicion; `context` names when it MIGHT matter.
+const WATCH_RULES = [
+  { label: 'cowbell', pattern: /\bcowbells?\b/gi, note: 'associated with phonk/Memphis pull', context: 'outside phonk builds' },
+  { label: 'woodblock', pattern: /\bwood\s?blocks?\b/gi, note: 'stock-percussion folklore (unverified)' },
+  { label: 'rim shot', pattern: /\brim\s?shots?\b/gi, note: 'stock-percussion folklore (unverified)' },
+  { label: 'reed', pattern: /\breeds?\b/gi, note: 'stock-sample folklore (unverified)' },
+  { label: 'clave', pattern: /\bclaves?\b/gi, note: 'latin-percussion pull (unverified)' },
+  { label: 'warm', pattern: /\bwarm(th|er)?\b/gi, note: 'jazz-drift folklore — appears in working prompts across genres', context: 'watch near boom-bap/soul anchors' },
+  { label: 'soulful', pattern: /\bsoulful\b/gi, note: 'jazz/gospel-drift folklore (unverified)' },
+  { label: 'airy', pattern: /\bairy\b/gi, note: 'jazz-drift folklore (unverified)' },
+  { label: 'syrupy', pattern: /\bsyrupy\b/gi, note: 'texture folklore (unverified)' },
+  { label: 'hypnotic', pattern: /\bhypnotic\b/gi, note: 'v1 folklore (unverified)' },
+  { label: 'waltz / 3-4', pattern: /\bwaltz(es)?\b|\b3\s*\/\s*4\b/gi, note: 'meter pull away from 4/4 — pair with "4/4" stabilizer if intentional' },
+  { label: 'chiptune', pattern: /\bchiptunes?\b/gi, note: 'video-game pull', context: 'unless building chiptune' },
+  { label: 'glossy', pattern: /\bglossy\b/gi, note: 'over-polish folklore (unverified)' },
+  { label: 'radio-ready', pattern: /\bradio[\s-]?ready\b/gi, note: 'community lists this as a WORKING polish term — v1 had it backwards' },
+  { label: 'twang', pattern: /\btwangy?\b/gi, note: 'country pull (plausible attractor)' },
+  { label: 'uplifting', pattern: /\buplifting\b/gi, note: 'gospel pull (plausible attractor)' },
+  { label: 'wah', pattern: /\bwah(-wah)?\b/gi, note: 'funk-guitar pull (owner-observed in session)' },
 ];
 
-// Words the filter must NEVER touch even though a banned token appears inside
-// them ("\b" already protects most cases; this protects hyphen edge cases).
-const SAFE_TERMS = [/\bswung\b/gi, /\bhalftime\b/gi, /\bg-funk\b/gi];
+// ---------------------------------------------------------------------------
+// ATTRACTORS — the verified genre-gravity mechanism. Each entry: when the
+// pattern appears and the build's genre core does NOT match `homeGenres`,
+// warn that the word will drag the generation toward `attracts`.
+const ATTRACTORS = [
+  { label: 'steel guitar', pattern: /\bsteel\s+guitar\b/gi, attracts: 'country', homeGenres: ['country'] },
+  { label: 'violin/strings family', pattern: /\bviolins?\b|\bstring\s+(section|ensemble)\b/gi, attracts: 'full orchestral treatment', homeGenres: ['orchestral', 'cinematic', 'soul', 'chipmunk'] },
+  { label: 'horn/brass family', pattern: /\bhorns?\b|\bbrass\b|\bsaxophones?\b|\bsax\b|\btrumpets?\b/gi, attracts: 'jazz/funk ensemble', homeGenres: ['jazz', 'funk', 'soul', 'chipmunk', 'bounce'] },
+  { label: 'organ', pattern: /\borgans?\b/gi, attracts: 'gospel/church', homeGenres: ['crunk', 'gospel', 'southern', 'soul', 'dirty south'] },
+  { label: 'bare "epic"/"cinematic"', pattern: /\bepic\b|\bcinematic\b/gi, attracts: 'generic trailer music', homeGenres: ['trap', 'drill', 'cinematic'], note: 'safe when paired with a concrete subgenre; dangerous alone' },
+  { label: 'choir', pattern: /\bchoirs?\b/gi, attracts: 'gospel lift', homeGenres: ['trap', 'gospel', 'cinematic', 'soul'] },
+  { label: 'swing/shuffle', pattern: /\bswing\b|\bshuffl(e|es|ing)\b/gi, attracts: 'live-drum feel', homeGenres: ['boom bap', 'jazz', 'soul', 'g-funk', 'bounce'], note: 'groove-critical vocabulary — this is an FYI, not a warning against use' },
+  { label: 'anthem', pattern: /\banthem(ic)?\b/gi, attracts: 'stadium/film-score scale', homeGenres: ['anthem', 'stadium'] },
+];
 
-// --- Dynamic rules (the Learning System) -----------------------------------
-// Confirmed trigger words discovered from aggregated user feedback live in
-// the Supabase dynamic_rules table and are injected here at app launch —
-// the kill list grows without an app release. Same shape as static RULES.
+// ---------------------------------------------------------------------------
+// HARD tier — stripped/substituted. Built-ins are empty by design: only
+// server-confirmed dynamic rules (Learning System) and artist names strip.
 let DYNAMIC_RULES = [];
 
-/**
- * Install server-confirmed rules. `rules` is [{word, substitute?}].
- * Words are compiled to case-insensitive word-boundary patterns; invalid
- * entries are skipped. Replaces the previous dynamic set (idempotent).
- */
 export function setDynamicRules(rules = []) {
   DYNAMIC_RULES = [];
   for (const rule of rules) {
@@ -110,41 +81,32 @@ export function getDynamicRules() {
   return DYNAMIC_RULES;
 }
 
-/** Static + dynamic, in application order (multi-word statics still first). */
-function allRules() {
-  return DYNAMIC_RULES.length ? [...RULES, ...DYNAMIC_RULES] : RULES;
+// ---------------------------------------------------------------------------
+
+function shieldExemptions(text, shields) {
+  return text.replace(/!([a-z0-9'-]+)/gi, (_, word) => {
+    shields.push(word);
+    return `@@SHIELD@@${shields.length - 1}@@SHIELD@@`;
+  });
+}
+
+function restoreShields(text, shields) {
+  return text.replace(/@@SHIELD@@(\d+)@@SHIELD@@/g, (_, i) => shields[Number(i)]);
 }
 
 /**
- * Filter a single string. Returns { text, hits } where hits is a list of
- * { label, action: 'substituted' | 'stripped' } for warning logs.
- * Substitution happens when the kill list has an approved equivalent;
- * otherwise the token is stripped and surrounding whitespace collapsed.
+ * HARD filter: strips/substitutes dynamic (server-confirmed) rules only.
+ * Signature kept from v1 — callers throughout the engine use this.
+ * Returns { text, hits: [{label, action}] }.
  */
 export function filterBannedWords(input) {
   if (!input) return { text: input ?? '', hits: [] };
   let text = String(input);
   const hits = [];
-
   const shields = [];
+  text = shieldExemptions(text, shields);
 
-  // Exemption prefix (power users editing prompts by hand): "!brass" keeps
-  // the word "brass" — the "!" is stripped, the word is shielded from every
-  // rule, static and dynamic. One word per "!"; use "!rim !shot" for phrases.
-  text = text.replace(/!([a-z0-9'-]+)/gi, (_, word) => {
-    shields.push(word);
-    return `@@SHIELD@@${shields.length - 1}@@SHIELD@@`;
-  });
-
-  // Temporarily shield safe terms so e.g. "swung" survives the "swing" rule.
-  SAFE_TERMS.forEach((safe, i) => {
-    text = text.replace(safe, (m) => {
-      shields.push(m);
-      return `@@SHIELD@@${shields.length - 1}@@SHIELD@@`;
-    });
-  });
-
-  for (const rule of allRules()) {
+  for (const rule of DYNAMIC_RULES) {
     rule.pattern.lastIndex = 0;
     if (!rule.pattern.test(text)) continue;
     rule.pattern.lastIndex = 0;
@@ -157,24 +119,63 @@ export function filterBannedWords(input) {
     }
   }
 
-  // Restore shielded safe terms.
-  text = text.replace(/@@SHIELD@@(\d+)@@SHIELD@@/g, (_, i) => shields[Number(i)]);
-
-  // Collapse whitespace/punctuation debris left by stripping.
+  text = restoreShields(text, shields);
   text = text
     .replace(/\s{2,}/g, ' ')
     .replace(/\s+([,.;])/g, '$1')
     .replace(/,\s*,/g, ',')
     .replace(/^[\s,]+|[\s,]+$/g, '');
-
   return { text, hits };
 }
 
+/** True if the string contains a HARD-tier violation (dynamic rules). */
+export function containsBannedWord(input) {
+  if (!input) return false;
+  let text = String(input).replace(/!([a-z0-9'-]+)/gi, '');
+  return DYNAMIC_RULES.some((rule) => {
+    rule.pattern.lastIndex = 0;
+    return rule.pattern.test(text);
+  });
+}
+
 /**
- * Scrub artist / celebrity / producer names from a string using the Artist
- * Decoder name list (plus era labels). Names never appear in output prompts.
- * `names` is an array of artist_name strings from the decoder cache.
+ * WATCH analysis: returns warnings for watch-tier words WITHOUT touching the
+ * text. Each: { tier: 'watch', label, note, context? }.
  */
+export function analyzeWatchWords(input) {
+  if (!input) return [];
+  const text = String(input).replace(/!([a-z0-9'-]+)/gi, '');
+  const warnings = [];
+  for (const rule of WATCH_RULES) {
+    rule.pattern.lastIndex = 0;
+    if (rule.pattern.test(text)) {
+      warnings.push({ tier: 'watch', label: rule.label, note: rule.note, context: rule.context });
+    }
+  }
+  return warnings;
+}
+
+/**
+ * ATTRACTOR analysis: genre-gravity warnings, contextual on the build's
+ * genre core. Each: { tier: 'attractor', label, attracts, note? }.
+ */
+export function detectAttractors(input, genreCore = '') {
+  if (!input) return [];
+  const text = String(input).replace(/!([a-z0-9'-]+)/gi, '');
+  const genre = String(genreCore).toLowerCase();
+  const warnings = [];
+  for (const rule of ATTRACTORS) {
+    rule.pattern.lastIndex = 0;
+    if (!rule.pattern.test(text)) continue;
+    const atHome = rule.homeGenres.some((g) => genre.includes(g));
+    if (!atHome) {
+      warnings.push({ tier: 'attractor', label: rule.label, attracts: rule.attracts, note: rule.note });
+    }
+  }
+  return warnings;
+}
+
+/** Artist / celebrity name scrub — unchanged product policy, always HARD. */
 export function scrubArtistNames(input, names = []) {
   if (!input) return { text: input ?? '', hits: [] };
   let text = String(input);
@@ -192,20 +193,5 @@ export function scrubArtistNames(input, names = []) {
   return { text, hits };
 }
 
-/** True if the string still contains any banned token (final Stage 3 sweep). */
-export function containsBannedWord(input) {
-  if (!input) return false;
-  let text = String(input);
-  // "!"-exempted words don't count as violations.
-  text = text.replace(/!([a-z0-9'-]+)/gi, '');
-  for (const safe of SAFE_TERMS) {
-    safe.lastIndex = 0;
-    text = text.replace(safe, '');
-  }
-  return allRules().some((rule) => {
-    rule.pattern.lastIndex = 0;
-    return rule.pattern.test(text);
-  });
-}
-
-export const BANNED_RULES = RULES;
+export const WATCH_LIST = WATCH_RULES;
+export const ATTRACTOR_LIST = ATTRACTORS;
