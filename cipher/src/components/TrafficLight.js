@@ -27,7 +27,7 @@ export default function TrafficLight() {
       <View style={styles.header}>
         <Led color={LED_COLORS[state]} />
         <Text style={[styles.label, { color: LED_COLORS[state] }]}>{label}</Text>
-        <Text style={styles.sub}>SERVER LOAD</Text>
+        <Text style={styles.sub}>QUEUE SPEED</Text>
       </View>
       <Text style={styles.message}>{message}</Text>
     </View>

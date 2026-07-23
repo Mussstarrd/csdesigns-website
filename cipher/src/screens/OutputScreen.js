@@ -13,6 +13,7 @@ import CharCounter from '../components/CharCounter.js';
 import PromptCard from '../components/PromptCard.js';
 import ConflictWarning from '../components/ConflictWarning.js';
 import FeedbackModal from '../components/FeedbackModal.js';
+import SliderRecs from '../components/SliderRecs.js';
 import { useFeedbackStore } from '../store/useFeedbackStore.js';
 import { usePromptStore } from '../store/usePromptStore.js';
 import { useVaultStore } from '../store/useVaultStore.js';
@@ -23,8 +24,10 @@ import { embedText } from '../services/embeddings.js';
 import { interpretDescription, DailyLimitError } from '../services/claudeInterpreter.js';
 
 export default function OutputScreen({ navigation }) {
-  const { result, platform, interpretation, regenerate, applyEdit, sessionKey, source, runBuild, energy, seedAudio } =
-    usePromptStore();
+  const {
+    result, platform, interpretation, regenerate, applyEdit, sessionKey, source,
+    runBuild, energy, seedAudio, deltaNotes, fixFromFeedback,
+  } = usePromptStore();
   const saveVersion = useVaultStore((s) => s.saveVersion);
   const recentEntries = useVaultStore((s) => s.recentEntries);
   const freshnessWindow = useSettingsStore((s) => s.freshnessWindow);
@@ -38,6 +41,7 @@ export default function OutputScreen({ navigation }) {
   const [vector, setVector] = useState(null);
   const [saved, setSaved] = useState(false);
   const [ratingOpen, setRatingOpen] = useState(false);
+  const [lastFeedback, setLastFeedback] = useState(null); // fuels FIX & REBUILD
   const [reinterpreting, setReinterpreting] = useState(false);
   const [reinterpretError, setReinterpretError] = useState(null);
   const recordFeedback = useFeedbackStore((s) => s.record);
@@ -198,6 +202,15 @@ export default function OutputScreen({ navigation }) {
         </Row>
       )}
 
+      {deltaNotes.length > 0 && (
+        <View style={styles.deltaCard}>
+          <Text style={styles.deltaTitle}>⚡ SURGICAL REBUILD APPLIED</Text>
+          {deltaNotes.map((note) => (
+            <Text key={note} style={styles.deltaNote}>· {note}</Text>
+          ))}
+        </View>
+      )}
+
       {tab === 'suno' && result.suno ? (
         <>
           {conflicts.map((c) => (
@@ -225,6 +238,26 @@ export default function OutputScreen({ navigation }) {
             multilineHeight={60}
             onChangeText={(t) => applyEdit('suno', 'excludeField', t)}
           />
+          <PromptCard
+            title="LYRICS FIELD — STRUCTURE SCAFFOLD"
+            text={result.suno.lyricScaffold}
+            multilineHeight={120}
+            onChangeText={(t) => applyEdit('suno', 'lyricScaffold', t)}
+          />
+          {(result.suno.warnings ?? [])
+            .filter((w) => w.type === 'watch' || w.type === 'attractor')
+            .slice(0, 4)
+            .map((w, i) => (
+              <Text key={`${w.label}-${i}`} style={styles.tierWarning}>
+                {w.type === 'watch'
+                  ? `👁 "${w.label}" — ${w.note}. Prefix with ! to dismiss.`
+                  : `🧲 "${w.label}" pulls toward ${w.attracts}.`}
+              </Text>
+            ))}
+          <SliderRecs grooveStyle={result.grooveStyle} sliders={source?.sliders} />
+          <Text style={styles.planTip}>
+            Free Suno plan runs v4.5-all — v5.5 (Voices, Custom Models) needs Pro/Premier.
+          </Text>
         </>
       ) : result.mureka ? (
         <>
@@ -253,6 +286,10 @@ export default function OutputScreen({ navigation }) {
             multilineHeight={150}
             onChangeText={(t) => applyEdit('mureka', 'structureBlock', t)}
           />
+          <Text style={styles.planTip}>
+            Mureka: pin model V9 in settings (retired models silently alias). If you
+            upload reference audio, it overrides any vocal-gender setting.
+          </Text>
         </>
       ) : null}
 
@@ -295,12 +332,25 @@ export default function OutputScreen({ navigation }) {
         style={{ marginTop: spacing.sm }}
       />
 
+      {lastFeedback && (lastFeedback.issues?.length ?? 0) > 0 && (
+        <PrimaryButton
+          title="⚡ FIX & REBUILD FROM THAT FEEDBACK"
+          style={{ marginTop: spacing.sm }}
+          onPress={() => {
+            fixFromFeedback(lastFeedback);
+            setLastFeedback(null);
+            setDismissedConflicts([]);
+            setSaved(false);
+          }}
+        />
+      )}
+
       <FeedbackModal
         visible={ratingOpen}
         defaultPlatform={tab}
         onClose={() => setRatingOpen(false)}
-        onSubmit={({ rating, issues, unwantedText, platform: ranOn }) =>
-          recordFeedback({
+        onSubmit={({ rating, issues, unwantedText, platform: ranOn }) => {
+          const feedback = {
             platform: ranOn,
             rating,
             issues,
@@ -309,8 +359,11 @@ export default function OutputScreen({ navigation }) {
               ranOn === 'suno'
                 ? result.suno?.stylePrompt ?? result.mureka?.musicStyle ?? ''
                 : result.mureka?.musicStyle ?? result.suno?.stylePrompt ?? '',
-          })
-        }
+          };
+          recordFeedback(feedback);
+          // Bad outcomes arm the delta loop (FIX & REBUILD button).
+          if (rating !== 'fire' && issues.length > 0) setLastFeedback(feedback);
+        }}
       />
     </Screen>
   );
@@ -351,4 +404,35 @@ const styles = StyleSheet.create({
     marginBottom: spacing.sm,
   },
   tempoText: { color: colors.accent, fontFamily: fonts.mono, fontSize: 12 },
+  tierWarning: {
+    color: colors.warn,
+    fontFamily: fonts.body,
+    fontSize: 12,
+    lineHeight: 17,
+    marginBottom: spacing.sm,
+  },
+  planTip: {
+    color: colors.textDim,
+    fontFamily: fonts.mono,
+    fontSize: 10,
+    lineHeight: 15,
+    letterSpacing: 0.3,
+    marginBottom: spacing.md,
+  },
+  deltaCard: {
+    backgroundColor: '#00E5A010',
+    borderWidth: 1,
+    borderColor: colors.accent,
+    borderRadius: radius.sm,
+    padding: spacing.sm,
+    marginBottom: spacing.md,
+  },
+  deltaTitle: {
+    color: colors.accent,
+    fontFamily: fonts.display,
+    fontSize: 11,
+    letterSpacing: 1.5,
+    marginBottom: 4,
+  },
+  deltaNote: { color: colors.text, fontFamily: fonts.body, fontSize: 12, lineHeight: 17 },
 });

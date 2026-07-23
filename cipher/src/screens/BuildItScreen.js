@@ -20,6 +20,8 @@ import SeedAudioToggle from '../components/SeedAudioToggle.js';
 import FineTuneOverrides from '../components/FineTuneOverrides.js';
 import DecoderPickerModal from '../components/DecoderPickerModal.js';
 import { REGION_ERA_CHIPS, VIBE_CHIPS, PRODUCTION_STYLE_CHIPS } from '../data/vibes.js';
+import { RECIPES } from '../data/recipes.js';
+import { GROOVE_STYLES } from '../engine/groove.js';
 import { buildFromChips } from '../engine/chipBuilder.js';
 import { usePromptStore } from '../store/usePromptStore.js';
 import { useSettingsStore } from '../store/useSettingsStore.js';
@@ -42,6 +44,7 @@ export default function BuildItScreen({ navigation }) {
     vocalPocket: false,
   });
 
+  const [grooveStyle, setGrooveStyle] = useState(null);
   const runBuild = usePromptStore((s) => s.runBuild);
   const canBuild = artistDna || regionChip || vibeChip || productionChip;
 
@@ -54,6 +57,20 @@ export default function BuildItScreen({ navigation }) {
       seedAudio,
       platform,
       energy: overrides.energy,
+      groove: grooveStyle ? { style: grooveStyle } : null,
+    });
+    navigation.navigate('Output');
+  };
+
+  // Recipe packs — research-sourced presets, one tap to Output.
+  const onRecipe = (recipe) => {
+    runBuild({
+      source: { type: 'recipe', recipeId: recipe.id, sliders: recipe.sliders },
+      interpretation: recipe.interpretation,
+      seedAudio,
+      platform,
+      energy: overrides.energy,
+      groove: { style: recipe.grooveStyle },
     });
     navigation.navigate('Output');
   };
@@ -67,6 +84,30 @@ export default function BuildItScreen({ navigation }) {
       <Body dim style={{ marginBottom: spacing.md }}>
         Deterministic — no AI call, unlimited, works offline.
       </Body>
+
+      <Label>Recipes — research-tested formulas</Label>
+      <Row style={{ flexWrap: 'wrap', marginBottom: spacing.sm }}>
+        {RECIPES.map((recipe) => (
+          <Chip
+            key={recipe.id}
+            label={recipe.verified ? recipe.label : `${recipe.label} (beta)`}
+            selected={false}
+            onPress={() => onRecipe(recipe)}
+          />
+        ))}
+      </Row>
+
+      <Label>Groove</Label>
+      <Row style={{ flexWrap: 'wrap', marginBottom: spacing.sm }}>
+        {Object.entries(GROOVE_STYLES).map(([key, { label }]) => (
+          <Chip
+            key={key}
+            label={label}
+            selected={grooveStyle === key}
+            onPress={() => setGrooveStyle(grooveStyle === key ? null : key)}
+          />
+        ))}
+      </Row>
 
       <Label>Artist Sound</Label>
       <Row style={{ flexWrap: 'wrap', marginBottom: spacing.sm }}>

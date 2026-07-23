@@ -25,11 +25,14 @@ cipher/
   App.js                     App entry — navigation + store hydration
   src/
     engine/                  ★ The deterministic prompt engine (pure JS, no RN deps)
-      promptAssembler.js       Stage 2 — Prompt Stack assembly, truncation, instrumental tag
-      bannedWords.js           Permanent kill list + substitution map
-      exclusions.js            Exclude-field formatter (≤5 items) + conflict map
+      promptAssembler.js       Stage 2 — Prompt Stack assembly, per-build budgets, truncation
+      bannedWords.js           Evidence-tiered word rules: hard (dynamic) / watch / attractors
+      groove.js                Groove slot — 3 rhythm vocabularies, budgets, stabilizers
+      deltaLoop.js             Failure report → deterministic corrective rebuild
+      exclusions.js            Exclude-field formatter (≤5) + conflict map + inversion table
       murekaFormatter.js       Mureka Music Style / Vocal Direction / Structure Block
-      structureTemplates.js    8+ genre/energy structure templates
+      structureCanon.js        Canonical hit-structure → Suno scaffold + Mureka bar blocks
+      structureTemplates.js    Genre/energy instrumental structure templates
       validator.js             Stage 3 — char counts, conflicts, forbidden-word sweep
       freshness.js             Cosine similarity + Jaccard fallback scoring
       seedAudio.js             Seed Audio Context category omission + complement language
