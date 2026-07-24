@@ -32,7 +32,12 @@ export default function SettingsScreen({ navigation }) {
   const decoderSource = useDecoderStore((s) => s.source);
   const entryCount = useDecoderStore((s) => s.entries.length);
   const feedbackCount = useFeedbackStore((s) => s.events.length);
-  const suspects = useFeedbackStore((s) => s.suspects());
+  // Derive outside the selector — fresh-array selectors loop (React #185).
+  const feedbackEvents = useFeedbackStore((s) => s.events);
+  const suspects = React.useMemo(
+    () => useFeedbackStore.getState().suspects(),
+    [feedbackEvents]
+  );
   const dynamicRuleCount = getDynamicRules().length;
 
   const [suggestName, setSuggestName] = useState('');

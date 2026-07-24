@@ -1,5 +1,5 @@
 /** Home / Create — three entry-point cards + Recent Prompts strip. */
-import React from 'react';
+import React, { useMemo } from 'react';
 import { View, Text, StyleSheet } from 'react-native';
 import * as Clipboard from 'expo-clipboard';
 import { colors, fonts, spacing } from '../theme/index.js';
@@ -28,7 +28,13 @@ const ENTRY_POINTS = [
 ];
 
 export default function HomeScreen({ navigation }) {
-  const recent = useVaultStore((s) => s.recentVersions(3));
+  // Select raw state; derive with useMemo. Deriving inside the selector
+  // returns a fresh array every snapshot → infinite re-render (React #185).
+  const sessions = useVaultStore((s) => s.sessions);
+  const recent = useMemo(
+    () => useVaultStore.getState().recentVersions(3),
+    [sessions]
+  );
 
   return (
     <Screen>

@@ -27,7 +27,12 @@ import { usePromptStore } from '../store/usePromptStore.js';
 import { useSettingsStore } from '../store/useSettingsStore.js';
 
 export default function BuildItScreen({ navigation }) {
-  const styleProfile = useSettingsStore((s) => s.styleProfile());
+  // Derive outside the selector — fresh-object selectors loop (React #185).
+  const promptHistory = useSettingsStore((s) => s.promptHistory);
+  const styleProfile = React.useMemo(
+    () => useSettingsStore.getState().styleProfile(),
+    [promptHistory]
+  );
   const [artistDna, setArtistDna] = useState(null);
   const [regionChip, setRegionChip] = useState(null);
   const [vibeChip, setVibeChip] = useState(null);
