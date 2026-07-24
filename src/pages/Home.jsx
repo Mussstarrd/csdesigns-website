@@ -141,7 +141,7 @@ export default function Home() {
               </div>
               <div className="md:col-span-7">
                 {s.empty ? (
-                  <div className="relative border border-cs-line/60 border-dashed bg-cs-panel/50 aspect-video flex items-center justify-center">
+                  <div className="relative border border-cs-line/60 border-dashed bg-cs-panel/50 aspect-[4/5] flex items-center justify-center">
                     <div className="text-center">
                       <div className="font-mono text-[10px] tracking-[0.4em] text-cs-blue/70 mb-2">// STATUS</div>
                       <div className="font-display text-xl md:text-2xl tracking-wider text-cs-muted">COMING SOON</div>

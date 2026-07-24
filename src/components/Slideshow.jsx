@@ -25,7 +25,7 @@ export default function Slideshow({ slides: raw, interval = 5000, randomize = fa
 
   return (
     <div
-      className="relative border border-cs-line bg-cs-panel overflow-hidden aspect-video hover:border-cs-blue/60 hover:shadow-blue transition-all group"
+      className="relative border border-cs-line bg-cs-panel overflow-hidden aspect-[4/5] hover:border-cs-blue/60 hover:shadow-blue transition-all group"
       onMouseEnter={() => setPaused(true)}
       onMouseLeave={() => setPaused(false)}
     >
@@ -39,7 +39,7 @@ export default function Slideshow({ slides: raw, interval = 5000, randomize = fa
           <img
             src={s.src}
             alt=""
-            className={s.contain ? "max-h-[85%] max-w-[70%] object-contain" : "w-full h-full object-cover"}
+            className={s.contain ? "max-h-[85%] max-w-[70%] object-contain" : "max-w-full max-h-full object-contain"}
             style={s.contain ? { filter: "drop-shadow(0 0 24px rgba(125, 211, 252, 0.5))" } : undefined}
           />
         </div>
