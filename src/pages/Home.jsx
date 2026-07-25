@@ -1,7 +1,7 @@
 import { Link } from "react-router-dom";
 import Slideshow from "../components/Slideshow.jsx";
 
-const enc = (p) => encodeURI(p);
+const enc = (p) => encodeURI(import.meta.env.BASE_URL + p.replace(/^\//, ""));
 
 const showcase = [
   {
@@ -85,7 +85,7 @@ export default function Home() {
               className="w-28 h-28 sm:w-36 sm:h-36 md:w-44 md:h-44 rounded-full overflow-hidden flex-shrink-0"
               style={{ boxShadow: "0 0 28px rgba(125, 211, 252, 0.5), inset 0 0 0 1px rgba(125, 211, 252, 0.35)" }}
             >
-              <img src="/assets/headshot.png" alt="" className="w-full h-full object-cover scale-110" />
+              <img src={`${import.meta.env.BASE_URL}assets/headshot.png`} alt="" className="w-full h-full object-cover scale-110" />
             </div>
           ))}
         </div>

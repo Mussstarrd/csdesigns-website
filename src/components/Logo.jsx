@@ -1,7 +1,7 @@
 export default function Logo({ size = 36 }) {
   return (
     <img
-      src="/assets/diamond.svg"
+      src={`${import.meta.env.BASE_URL}assets/diamond.svg`}
       alt="CSDesigns diamond"
       width={size}
       height={size}

@@ -5,7 +5,7 @@ export const categories = [
   { id: "flyers", label: "FLYERS" },
 ];
 
-const img = (file) => encodeURI(`/portfolio/${file}`);
+const img = (file) => encodeURI(`${import.meta.env.BASE_URL}portfolio/${file}`);
 
 export const projects = [
   // FLYERS — from EventFlyers/ + related
